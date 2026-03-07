@@ -56,18 +56,18 @@ export default function Philosophy({ data }: PhilosophyProps) {
             });
 
             tl.fromTo(line1Ref.current,
-                { opacity: 0, x: -30, filter: 'blur(10px)' },
-                { opacity: 1, x: 0, filter: 'blur(0px)', duration: 1.5, ease: "expo.out" }
+                { opacity: 0, y: 30, filter: 'blur(10px)' },
+                { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.5, ease: "expo.out" }
             )
                 .fromTo(line2Ref.current,
-                    { opacity: 0, x: 30, filter: 'blur(10px)' },
-                    { opacity: 1, x: 0, filter: 'blur(0px)', duration: 1.5, ease: "expo.out" },
+                    { opacity: 0, y: 30, filter: 'blur(10px)' },
+                    { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.5, ease: "expo.out" },
                     "-=1.2"
                 );
 
             // Parallax Scroll for Titles
             gsap.to(line1Ref.current, {
-                x: "-5vw",
+                y: "-2vh",
                 scrollTrigger: {
                     trigger: containerRef.current,
                     start: "top bottom",
@@ -77,7 +77,7 @@ export default function Philosophy({ data }: PhilosophyProps) {
             });
 
             gsap.to(line2Ref.current, {
-                x: "5vw",
+                y: "2vh",
                 scrollTrigger: {
                     trigger: containerRef.current,
                     start: "top bottom",
@@ -181,16 +181,23 @@ export default function Philosophy({ data }: PhilosophyProps) {
                         textTransform: 'uppercase',
                         display: 'block',
                         marginBottom: '4rem',
-                        fontWeight: 600
+                        fontWeight: 600,
+                        textAlign: 'center'
                     }}>
                         {label}
                     </span>
 
-                    <div style={{ position: 'relative' }}>
+                    <div style={{
+                        position: 'relative',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        textAlign: 'center'
+                    }}>
                         <h2
                             ref={line1Ref}
                             style={{
-                                fontSize: 'clamp(2.5rem, 10vw, 10rem)',
+                                fontSize: 'clamp(2.2rem, 9vw, 9.5rem)',
                                 fontWeight: 900,
                                 lineHeight: 1,
                                 textTransform: 'uppercase',
@@ -206,15 +213,15 @@ export default function Philosophy({ data }: PhilosophyProps) {
                         <h2
                             ref={line2Ref}
                             style={{
-                                fontSize: 'clamp(2.5rem, 10vw, 10rem)',
+                                fontSize: 'clamp(2.2rem, 9vw, 9.5rem)',
                                 fontWeight: 900,
                                 lineHeight: 1,
                                 textTransform: 'uppercase',
-                                margin: '-2vh 0 0 0',
+                                margin: '1vh 0 0 0',
                                 letterSpacing: '-0.05em',
                                 color: 'var(--accent-white)',
                                 WebkitTextStroke: 'none',
-                                textAlign: 'right',
+                                textAlign: 'center',
                                 position: 'relative',
                                 zIndex: 1
                             }}
