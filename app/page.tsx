@@ -6,6 +6,7 @@ import Philosophy from "@/components/sections/Philosophy";
 import Presence from "@/components/sections/Presence";
 import Support from "@/components/sections/Support";
 import Contact from "@/components/sections/Contact";
+export const dynamic = 'force-dynamic';
 import { db } from "@/lib/db";
 import {
     heroContent, aboutContent, projects, siteSettings,
