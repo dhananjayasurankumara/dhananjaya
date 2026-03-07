@@ -67,7 +67,7 @@ export default function Philosophy({ data }: PhilosophyProps) {
 
             // Parallax Scroll for Titles
             gsap.to(line1Ref.current, {
-                y: "-2vh",
+                y: "-5vh",
                 scrollTrigger: {
                     trigger: containerRef.current,
                     start: "top bottom",
@@ -77,7 +77,9 @@ export default function Philosophy({ data }: PhilosophyProps) {
             });
 
             gsap.to(line2Ref.current, {
-                y: "2vh",
+                y: "3vh",
+                scale: 1.1,
+                opacity: 0.8,
                 scrollTrigger: {
                     trigger: containerRef.current,
                     start: "top bottom",
@@ -197,7 +199,7 @@ export default function Philosophy({ data }: PhilosophyProps) {
                         <h2
                             ref={line1Ref}
                             style={{
-                                fontSize: 'clamp(2.2rem, 9vw, 9.5rem)',
+                                fontSize: 'clamp(2.5rem, 9.5vw, 10rem)',
                                 fontWeight: 900,
                                 lineHeight: 1,
                                 textTransform: 'uppercase',
@@ -213,13 +215,13 @@ export default function Philosophy({ data }: PhilosophyProps) {
                         <h2
                             ref={line2Ref}
                             style={{
-                                fontSize: 'clamp(2.2rem, 9vw, 9.5rem)',
-                                fontWeight: 900,
-                                lineHeight: 1,
+                                fontSize: 'clamp(1.5rem, 5vw, 4rem)',
+                                fontWeight: 800,
+                                lineHeight: 1.2,
                                 textTransform: 'uppercase',
-                                margin: '1vh 0 0 0',
-                                letterSpacing: '-0.05em',
-                                color: 'var(--accent-white)',
+                                margin: '3vh 0 0 0',
+                                letterSpacing: '0.1em',
+                                color: 'var(--highlight)',
                                 WebkitTextStroke: 'none',
                                 textAlign: 'center',
                                 position: 'relative',
