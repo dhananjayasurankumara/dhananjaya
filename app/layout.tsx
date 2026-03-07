@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 import ClientWrapper from '@/components/ClientWrapper';
-import { client } from '@/sanity/lib/client';
-import { siteSettingsQuery } from '@/sanity/lib/queries';
+import { db } from '@/lib/db';
+import { siteSettings } from '@/lib/db/schema';
 
 export const metadata: Metadata = {
     title: 'Dananjaya Suran Kumara | Graphic Designer / Creative Developer',
@@ -17,9 +17,9 @@ export default async function RootLayout({
 }) {
     let settingsData;
     try {
-        settingsData = await client.fetch(siteSettingsQuery);
+        settingsData = await db.select().from(siteSettings).limit(1).then(r => r[0]);
     } catch (error) {
-        console.warn("Sanity settings fetch failed:", error);
+        console.warn("DB settings fetch failed:", error);
     }
 
     return (

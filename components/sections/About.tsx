@@ -4,13 +4,17 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Image from 'next/image';
-import { urlForImage } from '@/sanity/lib/image';
 
 interface AboutProps {
     data?: {
         title?: string;
-        paragraphs?: string[];
-        backgroundImage?: any;
+        bio?: string;
+        stat1Value?: string;
+        stat1Label?: string;
+        stat2Value?: string;
+        stat2Label?: string;
+        stat3Value?: string;
+        stat3Label?: string;
     };
 }
 
@@ -127,7 +131,7 @@ export default function About({ data }: AboutProps) {
                 }}
             >
                 <Image
-                    src={data?.backgroundImage ? urlForImage(data.backgroundImage).url() : "/hero.png"}
+                    src="/hero.png"
                     alt="Background"
                     fill
                     style={{
@@ -221,8 +225,8 @@ export default function About({ data }: AboutProps) {
                         maxWidth: '700px',
                         marginLeft: 'auto'
                     }}>
-                        {data?.paragraphs && data.paragraphs.length > 0 ? (
-                            data.paragraphs.map((p, i) => <p key={i}>{p}</p>)
+                        {data?.bio ? (
+                            <p>{data.bio}</p>
                         ) : (
                             <>
                                 <p>

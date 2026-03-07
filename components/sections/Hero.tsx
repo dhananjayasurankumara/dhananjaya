@@ -5,14 +5,12 @@ import { motion } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import MagneticText from '@/components/MagneticText';
-import { urlForImage } from '@/sanity/lib/image';
 
 interface HeroProps {
     data?: {
-        label?: string;
-        titleLine1?: string;
-        titleLine2?: string;
-        backgroundImage?: any;
+        headline?: string;
+        subheadline?: string;
+        ctaText?: string;
     };
 }
 
@@ -126,9 +124,7 @@ export default function Hero({ data }: HeroProps) {
                     left: 0,
                     width: '100%',
                     height: '120%',
-                    backgroundImage: data?.backgroundImage
-                        ? `url("${urlForImage(data.backgroundImage).url()}")`
-                        : 'url("/hero%202.png")',
+                    backgroundImage: 'url("/hero%202.png")',
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     opacity: 0.4,
@@ -182,7 +178,7 @@ export default function Hero({ data }: HeroProps) {
                         marginBottom: 'clamp(1rem, 3vw, 2rem)',
                         opacity: 0.8
                     }}>
-                        {data?.label || "Graphic Designer / Creative Developer"}
+                        {data?.headline ? data.headline.split('\n')[0] || "Graphic Designer / Creative Developer" : "Graphic Designer / Creative Developer"}
                     </span>
                     <h1
                         style={{
@@ -203,7 +199,7 @@ export default function Hero({ data }: HeroProps) {
                             breakInside: 'avoid',
                             display: 'inline-block'
                         }}>
-                            {data?.titleLine1 || "Designing Visual Stories."}
+                            {data?.headline || "Designing Visual Stories."}
                         </div>
                         <div ref={line2Ref} className="line-2" style={{
                             fontWeight: 200,
@@ -212,7 +208,7 @@ export default function Hero({ data }: HeroProps) {
                             position: 'relative',
                             display: 'inline-block'
                         }}>
-                            {data?.titleLine2 || "Developing Digital Experiences."}
+                            {data?.subheadline || "Developing Digital Experiences."}
                         </div>
                     </h1>
                 </motion.div>

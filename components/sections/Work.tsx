@@ -4,13 +4,14 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Image from 'next/image';
-import { urlForImage } from '@/sanity/lib/image';
 
 interface Project {
-    title?: string;
-    category?: string;
-    image?: any;
+    id?: number;
+    title: string;
+    description?: string;
+    tags?: string;
     link?: string;
+    imageUrl?: string;
 }
 
 interface WorkProps {
@@ -20,20 +21,20 @@ interface WorkProps {
 const defaultProjects: Project[] = [
     {
         title: 'Precision Timepiece',
-        category: 'Motion Branding / GSAP',
-        image: '/images/project-1.png',
+        tags: 'Motion Branding / GSAP',
+        imageUrl: '/images/project-1.png',
         link: '',
     },
     {
         title: 'Architectural Void',
-        category: 'Visual Identity / Editorial',
-        image: '/images/project-2.png',
+        tags: 'Visual Identity / Editorial',
+        imageUrl: '/images/project-2.png',
         link: '',
     },
     {
         title: 'Technological Glow',
-        category: 'Cinematic Design / WebGL',
-        image: '/images/project-3.png',
+        tags: 'Cinematic Design / WebGL',
+        imageUrl: '/images/project-3.png',
         link: '',
     },
 ];
@@ -161,10 +162,10 @@ export default function Work({ data }: WorkProps) {
                         zIndex: 0,
                     }}>
                         <Image
-                            src={project.image && typeof project.image === 'object' ? urlForImage(project.image).url() : project.image}
+                            src={project.imageUrl || '/images/project-1.png'}
                             alt={project.title || "Project"}
                             fill
-                            style={{ objectFit: 'cover', opacity: 0.4 }} // Slightly darker for mobile readability
+                            style={{ objectFit: 'cover', opacity: 0.4 }}
                         />
                     </div>
 
@@ -182,7 +183,7 @@ export default function Work({ data }: WorkProps) {
                             display: 'block',
                             marginBottom: '1rem'
                         }}>
-                            {project.category}
+                            {project.tags}
                         </span>
                         <h3 style={{
                             fontSize: 'clamp(2.5rem, 7vw, 6rem)',
