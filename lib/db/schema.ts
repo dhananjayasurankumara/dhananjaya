@@ -1,13 +1,5 @@
 import { pgTable, serial, text, timestamp, boolean } from 'drizzle-orm/pg-core';
 
-// Admin authentication
-export const adminUsers = pgTable('admin_users', {
-    id: serial('id').primaryKey(),
-    username: text('username').notNull().unique(),
-    password: text('password').notNull(), // bcrypt hash
-    createdAt: timestamp('created_at').defaultNow(),
-});
-
 // Site-wide settings
 export const siteSettings = pgTable('site_settings', {
     id: serial('id').primaryKey(),

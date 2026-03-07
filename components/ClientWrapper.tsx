@@ -8,6 +8,7 @@ import LoadingScreen from './LoadingScreen';
 import SmoothScrollProvider from '@/lib/lenis-provider';
 import Navbar from './Navbar';
 import CustomCursor from './CustomCursor';
+import ChatBot from './ChatBot';
 
 export default function ClientWrapper({
     children,
@@ -49,6 +50,7 @@ export default function ClientWrapper({
                     <SmoothScrollProvider>
                         <main>{children}</main>
                     </SmoothScrollProvider>
+                    <ChatBot />
                 </>
             )}
         </>
