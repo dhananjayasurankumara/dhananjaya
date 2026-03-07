@@ -14,15 +14,16 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@neondatabase/serverless": "^1.0.2",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
     "@sanity/image-url": "^1.0.2",
     "@sanity/vision": "^3.43.0",
     "@sanity/visual-editing": "^5.3.0",
-    "@types/node": "^25.3.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "clsx": "^2.1.1",
+    "drizzle-orm": "^0.45.1",
     "eslint": "^10.0.2",
     "eslint-config-next": "^16.1.6",
     "framer-motion": "^12.34.3",
@@ -36,7 +37,11 @@
     "sanity": "^3.43.0",
     "styled-components": "^6.3.11",
     "tailwind-merge": "^3.5.0",
-    "three": "^0.183.2",
+    "three": "^0.183.2"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.5",
+    "drizzle-kit": "^0.31.9",
     "typescript": "^5.9.3"
   }
 }
