@@ -56,18 +56,18 @@ export default function Philosophy({ data }: PhilosophyProps) {
             });
 
             tl.fromTo(line1Ref.current,
-                { opacity: 0, x: -50, filter: 'blur(10px)' },
+                { opacity: 0, x: -30, filter: 'blur(10px)' },
                 { opacity: 1, x: 0, filter: 'blur(0px)', duration: 1.5, ease: "expo.out" }
             )
                 .fromTo(line2Ref.current,
-                    { opacity: 0, x: 50, filter: 'blur(10px)' },
-                    { opacity: 0.5, x: 0, filter: 'blur(0px)', duration: 1.5, ease: "expo.out" },
+                    { opacity: 0, x: 30, filter: 'blur(10px)' },
+                    { opacity: 1, x: 0, filter: 'blur(0px)', duration: 1.5, ease: "expo.out" },
                     "-=1.2"
                 );
 
             // Parallax Scroll for Titles
             gsap.to(line1Ref.current, {
-                x: "-10vw",
+                x: "-5vw",
                 scrollTrigger: {
                     trigger: containerRef.current,
                     start: "top bottom",
@@ -77,7 +77,7 @@ export default function Philosophy({ data }: PhilosophyProps) {
             });
 
             gsap.to(line2Ref.current, {
-                x: "10vw",
+                x: "5vw",
                 scrollTrigger: {
                     trigger: containerRef.current,
                     start: "top bottom",
