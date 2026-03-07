@@ -10,7 +10,12 @@ interface AboutData { title: string; bio: string; stat1Value: string; stat1Label
 interface Settings { logoText: string; email: string; whatsapp: string; linkedin: string; }
 interface Message { id: number; name: string; email: string; message: string; createdAt: string; }
 
-type Tab = 'hero' | 'about' | 'projects' | 'settings' | 'messages';
+interface PhilosophyData { label: string; line1: string; line2: string; bio: string; }
+interface TechnicalSkill { id?: number; name: string; type: string; order?: number; }
+interface PresenceLink { id?: number; name: string; platformId: string; url: string; color: string; tagline: string; order?: number; }
+interface SupportItem { id?: number; title: string; description: string; icon: string; url: string; }
+
+type Tab = 'hero' | 'about' | 'projects' | 'philosophy' | 'technical' | 'presence' | 'support' | 'settings' | 'messages';
 
 // ─────────────── Styles ───────────────
 const inputStyle: React.CSSProperties = {
@@ -66,8 +71,8 @@ function AboutEditor() {
         await fetch('/api/admin/about', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
         setSaved('Saved!'); setTimeout(() => setSaved(''), 2000);
     };
-    const f = (key: keyof AboutData) => <><label style={labelStyle}>{key.replace(/([A-Z])/g, ' $1').toUpperCase()}</label>
-        {key === 'bio' ? <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: '100px' }} value={data[key] || ''} onChange={e => setData({ ...data, [key]: e.target.value })} /> : <input style={inputStyle} value={data[key] || ''} onChange={e => setData({ ...data, [key]: e.target.value })} />}</>;
+    const f = (key: keyof AboutData) => <div key={key}><label style={labelStyle}>{key.replace(/([A-Z])/g, ' $1').toUpperCase()}</label>
+        {key === 'bio' ? <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: '100px' }} value={data[key] || ''} onChange={e => setData({ ...data, [key]: e.target.value })} /> : <input style={inputStyle} value={data[key] || ''} onChange={e => setData({ ...data, [key]: e.target.value })} />}</ div>;
     return (
         <div>
             <h2 style={{ margin: '0 0 2rem', fontWeight: 300, opacity: 0.6, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.2em' }}>About Section</h2>
@@ -112,6 +117,146 @@ function ProjectsManager() {
                 <div key={p.id} style={{ ...cardStyle, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div><p style={{ margin: 0, fontWeight: 600 }}>{p.title}</p><p style={{ margin: '0.25rem 0 0', opacity: 0.4, fontSize: '0.8rem' }}>{p.tags}</p></div>
                     <button style={dangerBtn} onClick={() => p.id && del(p.id)}>Delete</button>
+                </div>
+            ))}
+            <AnimatePresence>{saved && <SaveBanner msg={saved} />}</AnimatePresence>
+        </div>
+    );
+}
+
+// ─────────────── Philosophy Editor ───────────────
+function PhilosophyEditor() {
+    const [data, setData] = useState<PhilosophyData>({ label: '', line1: '', line2: '', bio: '' });
+    const [saved, setSaved] = useState('');
+    useEffect(() => { fetch('/api/admin/philosophy').then(r => r.json()).then(setData); }, []);
+    const save = async () => {
+        await fetch('/api/admin/philosophy', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+        setSaved('Saved!'); setTimeout(() => setSaved(''), 2000);
+    };
+    return (
+        <div>
+            <h2 style={{ margin: '0 0 2rem', fontWeight: 300, opacity: 0.6, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.2em' }}>Philosophy Section</h2>
+            <label style={labelStyle}>Label</label>
+            <input style={inputStyle} value={data.label || ''} onChange={e => setData({ ...data, label: e.target.value })} />
+            <label style={labelStyle}>Line 1</label>
+            <input style={inputStyle} value={data.line1 || ''} onChange={e => setData({ ...data, line1: e.target.value })} />
+            <label style={labelStyle}>Line 2</label>
+            <input style={inputStyle} value={data.line2 || ''} onChange={e => setData({ ...data, line2: e.target.value })} />
+            <label style={labelStyle}>Bio</label>
+            <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: '100px' }} value={data.bio || ''} onChange={e => setData({ ...data, bio: e.target.value })} />
+            <button style={btnStyle} onClick={save}>Save Philosophy</button>
+            <AnimatePresence>{saved && <SaveBanner msg={saved} />}</AnimatePresence>
+        </div>
+    );
+}
+
+// ─────────────── Technical Manager ───────────────
+function TechnicalManager() {
+    const [list, setList] = useState<TechnicalSkill[]>([]);
+    const [form, setForm] = useState<TechnicalSkill>({ name: '', type: '' });
+    const [saved, setSaved] = useState('');
+    const load = () => fetch('/api/admin/technical').then(r => r.json()).then(setList);
+    useEffect(() => { load(); }, []);
+    const add = async () => {
+        await fetch('/api/admin/technical', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
+        setForm({ name: '', type: '' });
+        load(); setSaved('Skill Added!'); setTimeout(() => setSaved(''), 2000);
+    };
+    const del = async (id: number) => {
+        await fetch('/api/admin/technical', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+        load();
+    };
+    return (
+        <div>
+            <h2 style={{ margin: '0 0 2rem', fontWeight: 300, opacity: 0.6, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.2em' }}>Technical Skills</h2>
+            <div style={cardStyle}>
+                <p style={{ ...labelStyle, marginBottom: '1rem' }}>Add New Skill</p>
+                <div><label style={labelStyle}>NAME</label>
+                    <input style={inputStyle} value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} /></div>
+                <div><label style={labelStyle}>TYPE (e.g. Language, Framework)</label>
+                    <input style={inputStyle} value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} /></div>
+                <button style={btnStyle} onClick={add}>Add Skill</button>
+            </div>
+            {list.map(s => (
+                <div key={s.id} style={{ ...cardStyle, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div><p style={{ margin: 0, fontWeight: 600 }}>{s.name}</p><p style={{ margin: '0.25rem 0 0', opacity: 0.4, fontSize: '0.8rem' }}>{s.type}</p></div>
+                    <button style={dangerBtn} onClick={() => s.id && del(s.id)}>Delete</button>
+                </div>
+            ))}
+            <AnimatePresence>{saved && <SaveBanner msg={saved} />}</AnimatePresence>
+        </div>
+    );
+}
+
+// ─────────────── Presence Manager ───────────────
+function PresenceManager() {
+    const [list, setList] = useState<PresenceLink[]>([]);
+    const [form, setForm] = useState<PresenceLink>({ name: '', platformId: '', url: '', color: '', tagline: '' });
+    const [saved, setSaved] = useState('');
+    const load = () => fetch('/api/admin/presence').then(r => r.json()).then(setList);
+    useEffect(() => { load(); }, []);
+    const add = async () => {
+        await fetch('/api/admin/presence', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
+        setForm({ name: '', platformId: '', url: '', color: '', tagline: '' });
+        load(); setSaved('Link Added!'); setTimeout(() => setSaved(''), 2000);
+    };
+    const del = async (id: number) => {
+        await fetch('/api/admin/presence', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+        load();
+    };
+    return (
+        <div>
+            <h2 style={{ margin: '0 0 2rem', fontWeight: 300, opacity: 0.6, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.2em' }}>Social Presence</h2>
+            <div style={cardStyle}>
+                <p style={{ ...labelStyle, marginBottom: '1rem' }}>Add New Link</p>
+                {(['name', 'platformId', 'url', 'color', 'tagline'] as const).map(k => (
+                    <div key={k}><label style={labelStyle}>{k.replace(/([A-Z])/g, ' $1').toUpperCase()}</label>
+                        <input style={inputStyle} value={form[k]} onChange={e => setForm({ ...form, [k]: e.target.value })} /></div>
+                ))}
+                <button style={btnStyle} onClick={add}>Add Link</button>
+            </div>
+            {list.map(l => (
+                <div key={l.id} style={{ ...cardStyle, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div><p style={{ margin: 0, fontWeight: 600 }}>{l.name}</p><p style={{ margin: '0.25rem 0 0', opacity: 0.4, fontSize: '0.8rem' }}>{l.tagline}</p></div>
+                    <button style={dangerBtn} onClick={() => l.id && del(l.id)}>Delete</button>
+                </div>
+            ))}
+            <AnimatePresence>{saved && <SaveBanner msg={saved} />}</AnimatePresence>
+        </div>
+    );
+}
+
+// ─────────────── Support Manager ───────────────
+function SupportManager() {
+    const [list, setList] = useState<SupportItem[]>([]);
+    const [form, setForm] = useState<SupportItem>({ title: '', description: '', icon: '', url: '' });
+    const [saved, setSaved] = useState('');
+    const load = () => fetch('/api/admin/support').then(r => r.json()).then(setList);
+    useEffect(() => { load(); }, []);
+    const add = async () => {
+        await fetch('/api/admin/support', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
+        setForm({ title: '', description: '', icon: '', url: '' });
+        load(); setSaved('Item Added!'); setTimeout(() => setSaved(''), 2000);
+    };
+    const del = async (id: number) => {
+        await fetch('/api/admin/support', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+        load();
+    };
+    return (
+        <div>
+            <h2 style={{ margin: '0 0 2rem', fontWeight: 300, opacity: 0.6, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.2em' }}>Support Items</h2>
+            <div style={cardStyle}>
+                <p style={{ ...labelStyle, marginBottom: '1rem' }}>Add New Support Item</p>
+                {(['title', 'description', 'icon', 'url'] as const).map(k => (
+                    <div key={k}><label style={labelStyle}>{k.replace(/([A-Z])/g, ' $1').toUpperCase()}</label>
+                        <input style={inputStyle} value={form[k]} onChange={e => setForm({ ...form, [k]: e.target.value })} /></div>
+                ))}
+                <button style={btnStyle} onClick={add}>Add Item</button>
+            </div>
+            {list.map(i => (
+                <div key={i.id} style={{ ...cardStyle, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div><p style={{ margin: 0, fontWeight: 600 }}>{i.title}</p><p style={{ margin: '0.25rem 0 0', opacity: 0.4, fontSize: '0.8rem' }}>{i.description}</p></div>
+                    <button style={dangerBtn} onClick={() => i.id && del(i.id)}>Delete</button>
                 </div>
             ))}
             <AnimatePresence>{saved && <SaveBanner msg={saved} />}</AnimatePresence>
@@ -215,8 +360,10 @@ export default function AdminPage() {
     );
 
     const tabs: { id: Tab; label: string }[] = [
-        { id: 'hero', label: 'Hero' }, { id: 'about', label: 'About' },
-        { id: 'projects', label: 'Projects' }, { id: 'settings', label: 'Settings' }, { id: 'messages', label: 'Messages' },
+        { id: 'hero', label: 'Hero' }, { id: 'philosophy', label: 'Philosophy' }, { id: 'about', label: 'About' },
+        { id: 'projects', label: 'Projects' }, { id: 'technical', label: 'Technical' },
+        { id: 'presence', label: 'Presence' }, { id: 'support', label: 'Support' },
+        { id: 'settings', label: 'Settings' }, { id: 'messages', label: 'Messages' },
     ];
 
     return (
@@ -228,14 +375,14 @@ export default function AdminPage() {
                     <p style={{ fontSize: '0.55rem', letterSpacing: '0.4em', textTransform: 'uppercase', opacity: 0.25, margin: '0 0 0.25rem' }}>Portfolio</p>
                     <p style={{ fontSize: '0.85rem', fontWeight: 700, margin: 0, letterSpacing: '0.1em' }}>ADMIN PANEL</p>
                 </div>
-                <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1 }}>
+                <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1, overflowY: 'auto' }}>
                     {tabs.map(t => (
                         <button key={t.id} onClick={() => setActiveTab(t.id)} style={{ background: activeTab === t.id ? 'rgba(255,255,255,0.08)' : 'transparent', border: 'none', color: activeTab === t.id ? 'white' : 'rgba(255,255,255,0.4)', padding: '0.75rem 1rem', borderRadius: '8px', cursor: 'pointer', textAlign: 'left', fontSize: '0.8rem', fontWeight: activeTab === t.id ? 600 : 400, letterSpacing: '0.05em', transition: 'all 0.2s ease' }}>
                             {t.label}
                         </button>
                     ))}
                 </nav>
-                <button onClick={logout} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.4)', padding: '0.6rem 1rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.75rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                <button onClick={logout} style={{ marginTop: '1rem', background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.4)', padding: '0.6rem 1rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.75rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                     Logout
                 </button>
             </aside>
@@ -244,8 +391,12 @@ export default function AdminPage() {
                 <AnimatePresence mode="wait">
                     <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
                         {activeTab === 'hero' && <HeroEditor />}
+                        {activeTab === 'philosophy' && <PhilosophyEditor />}
                         {activeTab === 'about' && <AboutEditor />}
                         {activeTab === 'projects' && <ProjectsManager />}
+                        {activeTab === 'technical' && <TechnicalManager />}
+                        {activeTab === 'presence' && <PresenceManager />}
+                        {activeTab === 'support' && <SupportManager />}
                         {activeTab === 'settings' && <SettingsEditor />}
                         {activeTab === 'messages' && <MessagesViewer />}
                     </motion.div>

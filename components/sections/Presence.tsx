@@ -8,22 +8,29 @@ import { ExternalLink } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const platforms = [
-    { name: 'Instagram', icon: <InstagramLogo />, color: '#E4405F', tagline: 'Visual Influence' },
-    { name: 'Behance', icon: <BehanceLogo />, color: '#0057FF', tagline: 'Creative Portfolio' },
-    { name: 'Dribbble', icon: <DribbbleLogo />, color: '#EA4C89', tagline: 'Design Inspiration' },
-    { name: 'TikTok', icon: <TikTokLogo />, color: '#EE1D52', tagline: 'Trend-Driven Motion' },
-    { name: 'YouTube', icon: <YouTubeLogo />, color: '#FF0000', tagline: 'Moving Stories' },
-    { name: 'LinkedIn', icon: <LinkedInLogo />, color: '#0A66C2', tagline: 'Executive Networking' },
-    { name: 'GitHub', icon: <GitHubLogo />, color: '#FFFFFF', tagline: 'Code Mastery' },
-    { name: 'Facebook', icon: <FacebookLogo />, color: '#1877F2', tagline: 'Social Ecosystem' },
-    { name: 'X', icon: <XLogo />, color: '#FFFFFF', tagline: 'Real-time Authority' },
-    { name: 'Telegram', icon: <TelegramLogo />, color: '#26A5E4', tagline: 'Encrypted Networks' },
-    { name: 'WhatsApp', icon: <WhatsAppLogo />, color: '#25D366', tagline: 'Instant Communication' },
-    { name: 'Fiverr', icon: <FiverrLogo />, color: '#1DBF73', tagline: 'Global Freelancing' },
-    { name: 'Upwork', icon: <UpworkLogo />, color: '#14A800', tagline: 'Enterprise Solutions' },
-    { name: 'PeoplePerHour', icon: <PPHLogo />, color: '#FF7D00', tagline: 'Hourly Innovation' }
+const defaultPlatforms = [
+    { name: 'Instagram', icon: <InstagramLogo />, color: '#E4405F', tagline: 'Visual Influence', platformId: 'instagram', url: '#' },
+    { name: 'Behance', icon: <BehanceLogo />, color: '#0057FF', tagline: 'Creative Portfolio', platformId: 'behance', url: '#' },
+    { name: 'Dribbble', icon: <DribbbleLogo />, color: '#EA4C89', tagline: 'Design Inspiration', platformId: 'dribbble', url: '#' },
+    { name: 'TikTok', icon: <TikTokLogo />, color: '#EE1D52', tagline: 'Trend-Driven Motion', platformId: 'tiktok', url: '#' },
+    { name: 'YouTube', icon: <YouTubeLogo />, color: '#FF0000', tagline: 'Moving Stories', platformId: 'youtube', url: '#' },
+    { name: 'LinkedIn', icon: <LinkedInLogo />, color: '#0A66C2', tagline: 'Executive Networking', platformId: 'linkedin', url: '#' },
+    { name: 'GitHub', icon: <GitHubLogo />, color: '#FFFFFF', tagline: 'Code Mastery', platformId: 'github', url: '#' },
+    { name: 'Facebook', icon: <FacebookLogo />, color: '#1877F2', tagline: 'Social Ecosystem', platformId: 'facebook', url: '#' },
+    { name: 'X', icon: <XLogo />, color: '#FFFFFF', tagline: 'Real-time Authority', platformId: 'x', url: '#' },
+    { name: 'Telegram', icon: <TelegramLogo />, color: '#26A5E4', tagline: 'Encrypted Networks', platformId: 'telegram', url: '#' },
+    { name: 'WhatsApp', icon: <WhatsAppLogo />, color: '#25D366', tagline: 'Instant Communication', platformId: 'whatsapp', url: '#' },
+    { name: 'Fiverr', icon: <FiverrLogo />, color: '#1DBF73', tagline: 'Global Freelancing', platformId: 'fiverr', url: '#' },
+    { name: 'Upwork', icon: <UpworkLogo />, color: '#14A800', tagline: 'Enterprise Solutions', platformId: 'upwork', url: '#' },
+    { name: 'PeoplePerHour', icon: <PPHLogo />, color: '#FF7D00', tagline: 'Hourly Innovation', platformId: 'pph', url: '#' }
 ];
+
+const iconMap: Record<string, React.ReactNode> = {
+    instagram: <InstagramLogo />, behance: <BehanceLogo />, dribbble: <DribbbleLogo />, tiktok: <TikTokLogo />,
+    youtube: <YouTubeLogo />, linkedin: <LinkedInLogo />, github: <GitHubLogo />, facebook: <FacebookLogo />,
+    x: <XLogo />, telegram: <TelegramLogo />, whatsapp: <WhatsAppLogo />, fiverr: <FiverrLogo />,
+    upwork: <UpworkLogo />, pph: <PPHLogo />
+};
 
 // --- Official Brand Logos (High-Fidelity SVGs) ---
 function InstagramLogo() { return <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.266.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.848 0-3.204.012-3.584.07-4.849.149-3.225 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.981 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.058-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" /></svg>; }
@@ -41,9 +48,22 @@ function FiverrLogo() { return <svg viewBox="0 0 24 24" width="32" height="32" f
 function UpworkLogo() { return <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor"><path d="M18.561 3.322c-2.544 0-4.502 1.948-4.512 4.49v5.127l-2.301-7.859H8.641v5.992c0 1.636-1.332 2.968-2.968 2.968a2.97 2.97 0 0 1-2.968-2.968V5.08H0v5.992c0 3.264 2.656 5.92 5.92 5.92 1.396 0 2.678-.488 3.687-1.303l.974 3.324h3.181l-1.635-5.58c1.623-1.42 2.924-3.526 3.682-5.918 1.056 1.144 2.455 1.83 4 1.83 2.544 0 4.502-1.948 4.512-4.49S21.104 3.322 18.561 3.322zm0 6.06c-.846 0-1.531-.685-1.531-1.53 0-.846.685-1.531 1.531-1.531.846 0 1.531.685 1.531 1.531 0 .845-.685 1.53-1.531 1.53z" /></svg>; }
 function PPHLogo() { return <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor"><path d="M12 0c6.627 0 12 5.373 12 12s-5.373 12-12 12S0 18.627 0 12 5.373 0 12 0zm1 4v3h3v2h-3v7h-2v-7H8V9h3V6h2z" /></svg>; }
 
-export default function Presence() {
+interface PresenceProps {
+    data?: { name: string; platformId: string; url: string; color?: string; tagline?: string; }[];
+}
+
+export default function Presence({ data }: PresenceProps) {
     const sectionRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+
+    const platforms = (data && data.length > 0)
+        ? data.map(p => ({
+            ...p,
+            icon: iconMap[p.platformId?.toLowerCase()] || <ExternalLink size={32} />,
+            color: p.color || '#FFFFFF',
+            tagline: p.tagline || 'Digital Influence'
+        }))
+        : defaultPlatforms;
 
     const lenis = useLenis();
 
@@ -147,8 +167,11 @@ export default function Presence() {
                 }}
             >
                 {platforms.map((platform, index) => (
-                    <div
+                    <a
                         key={index}
+                        href={(platform as any).url || '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="platform-grid-item"
                         style={{
                             background: 'rgba(255,255,255,0.02)',
@@ -162,7 +185,8 @@ export default function Presence() {
                             justifyContent: 'center',
                             transition: 'all 0.5s cubic-bezier(0.25, 1, 0.5, 1)',
                             cursor: 'pointer',
-                            position: 'relative'
+                            position: 'relative',
+                            textDecoration: 'none'
                         }}
                         onMouseEnter={(e) => {
                             e.currentTarget.style.borderColor = `${platform.color}30`;
@@ -212,7 +236,7 @@ export default function Presence() {
                         }}>
                             <ExternalLink size={14} />
                         </div>
-                    </div>
+                    </a>
                 ))}
             </div>
 

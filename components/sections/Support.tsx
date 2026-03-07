@@ -7,7 +7,21 @@ import { useLenis } from 'lenis/react';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function Support() {
+const defaultItems = [
+    { title: "Buy me a coffee", description: "Keep the caffeine flowing and the code compiling.", icon: "coffee", url: "https://buymeacoffee.com/your-username" },
+    { title: "Buy me a pizza", description: "Fuel the late-night sessions and creative breakthroughs.", icon: "pizza", url: "https://buymeacoffee.com/your-username" }
+];
+
+const iconMap: Record<string, React.ReactNode> = {
+    coffee: <Coffee size={32} />,
+    pizza: <Pizza size={32} />,
+};
+
+interface SupportProps {
+    data?: { title: string; description: string; icon: string; url: string; }[];
+}
+
+export default function Support({ data }: SupportProps) {
     const sectionRef = useRef<HTMLDivElement>(null);
     const bgRef = useRef<HTMLDivElement>(null);
     const lenis = useLenis();
@@ -142,18 +156,15 @@ export default function Support() {
                         justifyContent: 'center'
                     }}
                 >
-                    <SupportCard
-                        icon={<Coffee size={32} />}
-                        title="Buy me a coffee"
-                        description="Keep the caffeine flowing and the code compiling."
-                        href="https://buymeacoffee.com/your-username"
-                    />
-                    <SupportCard
-                        icon={<Pizza size={32} />}
-                        title="Buy me a pizza"
-                        description="Fuel the late-night sessions and creative breakthroughs."
-                        href="https://buymeacoffee.com/your-username"
-                    />
+                    {((data && data.length > 0) ? data : defaultItems).map((item, idx) => (
+                        <SupportCard
+                            key={idx}
+                            icon={iconMap[item.icon || ''] || <Coffee size={32} />}
+                            title={item.title}
+                            description={item.description || ''}
+                            href={item.url}
+                        />
+                    ))}
                 </div>
             </div>
 

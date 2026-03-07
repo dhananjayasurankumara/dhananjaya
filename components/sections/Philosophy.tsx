@@ -4,11 +4,25 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-export default function Philosophy() {
+interface PhilosophyProps {
+    data?: {
+        label?: string;
+        line1?: string;
+        line2?: string;
+        bio?: string;
+    };
+}
+
+export default function Philosophy({ data }: PhilosophyProps) {
     const textRef1 = useRef<HTMLHeadingElement>(null);
     const textRef2 = useRef<HTMLHeadingElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const labelRef = useRef<HTMLSpanElement>(null);
+
+    const label = data?.label || "Digital Alchemy / Creative Engineering";
+    const line1 = data?.line1 || "I don't just build pixels.";
+    const line2 = data?.line2 || "I architect digital souls.";
+    const bio = data?.bio || "Architecture is the silence between the code. I operate at the intersection of aesthetic authority and technical precision, where every interaction is a deliberate narrative choice.";
 
     useEffect(() => {
         gsap.registerPlugin(ScrollTrigger);
@@ -122,13 +136,13 @@ export default function Philosophy() {
                 <div style={{ overflow: 'hidden', marginBottom: '3rem' }}>
                     <span ref={labelRef} className="philosophy-label" style={{
                         color: 'var(--highlight)',
-                        fontSize: 'clamp(0.6rem, 1vw, 0.8rem)',
+                        fontSize: 'clamp(0.65rem, 1vw, 0.8rem)',
                         letterSpacing: '0.6em',
                         textTransform: 'uppercase',
                         display: 'block',
                         opacity: 0.6
                     }}>
-                        Digital Alchemy / Creative Engineering
+                        {label}
                     </span>
                 </div>
 
@@ -151,7 +165,7 @@ export default function Philosophy() {
                             color: 'var(--accent-white)',
                         }}
                     >
-                        {splitText("I don't just build pixels.")}
+                        {splitText(line1)}
                     </h2>
                     <h2
                         ref={textRef2}
@@ -167,7 +181,7 @@ export default function Philosophy() {
                             opacity: 0.3,
                         }}
                     >
-                        {splitText("I architect digital souls.")}
+                        {splitText(line2)}
                     </h2>
                 </div>
 
@@ -188,7 +202,7 @@ export default function Philosophy() {
                         gap: '2.5rem'
                     }}>
                         <p className="philosophy-text" style={{ opacity: 0.9 }}>
-                            Architecture is the silence between the code. I operate at the intersection of aesthetic authority and technical precision, where every interaction is a deliberate narrative choice.
+                            {bio}
                         </p>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>

@@ -7,7 +7,10 @@ import Presence from "@/components/sections/Presence";
 import Support from "@/components/sections/Support";
 import Contact from "@/components/sections/Contact";
 import { db } from "@/lib/db";
-import { heroContent, aboutContent, projects, siteSettings } from "@/lib/db/schema";
+import {
+    heroContent, aboutContent, projects, siteSettings,
+    philosophyContent, technicalSkills, presenceLinks, supportItems
+} from "@/lib/db/schema";
 
 // Convert nulls from Drizzle to undefined so optional props match
 function nn<T extends object>(obj: T | undefined): { [K in keyof T]: Exclude<T[K], null> } | undefined {
@@ -18,14 +21,21 @@ function nn<T extends object>(obj: T | undefined): { [K in keyof T]: Exclude<T[K
 }
 
 export default async function Home() {
-    let heroData, aboutData, projectsData, settingsData;
+    let heroData, aboutData, projectsData, settingsData, philosophyData, techData, presenceData, supportData;
 
     try {
-        [heroData, aboutData, projectsData, settingsData] = await Promise.all([
+        [
+            heroData, aboutData, projectsData, settingsData,
+            philosophyData, techData, presenceData, supportData
+        ] = await Promise.all([
             db.select().from(heroContent).limit(1).then(r => r[0]),
             db.select().from(aboutContent).limit(1).then(r => r[0]),
             db.select().from(projects),
             db.select().from(siteSettings).limit(1).then(r => r[0]),
+            db.select().from(philosophyContent).limit(1).then(r => r[0]),
+            db.select().from(technicalSkills).orderBy(technicalSkills.order),
+            db.select().from(presenceLinks).orderBy(presenceLinks.order),
+            db.select().from(supportItems)
         ]);
     } catch (error) {
         console.warn("DB fetch failed, using component defaults:", error);
@@ -34,12 +44,12 @@ export default async function Home() {
     return (
         <>
             <Hero data={nn(heroData)} />
-            <Philosophy />
+            <Philosophy data={nn(philosophyData)} />
             <About data={nn(aboutData)} />
-            <Technical />
+            <Technical data={techData as any} />
             <Work data={projectsData as any} />
-            <Presence />
-            <Support />
+            <Presence data={presenceData as any} />
+            <Support data={supportData as any} />
             <Contact data={nn(settingsData)} />
         </>
     );

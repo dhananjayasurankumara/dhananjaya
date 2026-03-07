@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-const technologies = [
+const defaultTech = [
     { name: 'JavaScript', type: 'Language' },
     { name: 'TypeScript', type: 'Language' },
     { name: 'React', type: 'Framework' },
@@ -18,9 +18,15 @@ const technologies = [
     { name: 'Illustrator', type: 'Vector' },
 ];
 
-export default function Technical() {
+interface TechnicalProps {
+    data?: { name: string; type: string }[];
+}
+
+export default function Technical({ data }: TechnicalProps) {
     const sectionRef = useRef<HTMLDivElement>(null);
     const triggerRef = useRef<HTMLDivElement>(null);
+
+    const technologies = (data && data.length > 0) ? data : defaultTech;
 
     useEffect(() => {
         gsap.registerPlugin(ScrollTrigger);

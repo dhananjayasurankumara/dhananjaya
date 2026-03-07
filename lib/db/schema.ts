@@ -53,6 +53,47 @@ export const projects = pgTable('projects', {
     createdAt: timestamp('created_at').defaultNow(),
 });
 
+// Philosophy section
+export const philosophyContent = pgTable('philosophy_content', {
+    id: serial('id').primaryKey(),
+    label: text('label').default('Digital Alchemy / Creative Engineering'),
+    line1: text('line1').default("I don't just build pixels."),
+    line2: text('line2').default('I architect digital souls.'),
+    bio: text('bio').default('Architecture is the silence between the code. I operate at the intersection of aesthetic authority and technical precision.'),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Technical Mastery (Skills)
+export const technicalSkills = pgTable('technical_skills', {
+    id: serial('id').primaryKey(),
+    name: text('name').notNull(),
+    type: text('type').notNull(), // Language, Framework, Motion, etc.
+    order: serial('order'),
+    createdAt: timestamp('created_at').defaultNow(),
+});
+
+// Presence (Social Links)
+export const presenceLinks = pgTable('presence_links', {
+    id: serial('id').primaryKey(),
+    name: text('name').notNull(),
+    platformId: text('platform_id').notNull(), // for icon mapping
+    url: text('url').notNull(),
+    color: text('color'),
+    tagline: text('tagline'),
+    order: serial('order'),
+    createdAt: timestamp('created_at').defaultNow(),
+});
+
+// Support items
+export const supportItems = pgTable('support_items', {
+    id: serial('id').primaryKey(),
+    title: text('title').notNull(),
+    description: text('description'),
+    icon: text('icon'), // coffee, pizza, etc.
+    url: text('url').notNull(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
 // Contact form submissions
 export const contacts = pgTable('contacts', {
     id: serial('id').primaryKey(),
