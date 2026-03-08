@@ -46,7 +46,7 @@ export default function Philosophy({ data }: PhilosophyProps) {
                 }
             );
 
-            // Staggered Title Animation
+            // Title Animation (Left Side)
             const tl = gsap.timeline({
                 scrollTrigger: {
                     trigger: containerRef.current,
@@ -56,71 +56,27 @@ export default function Philosophy({ data }: PhilosophyProps) {
             });
 
             tl.fromTo(line1Ref.current,
-                { opacity: 0, y: 30, filter: 'blur(10px)' },
-                { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.5, ease: "expo.out" }
+                { opacity: 0, x: -50, filter: 'blur(10px)' },
+                { opacity: 1, x: 0, filter: 'blur(0px)', duration: 1.5, ease: "expo.out" }
             )
                 .fromTo(line2Ref.current,
-                    { opacity: 0, y: 30, filter: 'blur(10px)' },
-                    { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.5, ease: "expo.out" },
+                    { opacity: 0, x: -30, filter: 'blur(10px)' },
+                    { opacity: 1, x: 0, filter: 'blur(0px)', duration: 1.5, ease: "expo.out" },
                     "-=1.2"
                 );
 
-            // Parallax Scroll for Titles
-            gsap.to(line1Ref.current, {
-                y: "-5vh",
+            // Right Side Content Reveal
+            gsap.from('.philosophy-right-content > *', {
+                x: 50,
+                opacity: 0,
+                stagger: 0.2,
+                duration: 1.2,
+                ease: 'power3.out',
                 scrollTrigger: {
                     trigger: containerRef.current,
-                    start: "top bottom",
-                    end: "bottom top",
-                    scrub: true
+                    start: 'top 60%',
                 }
             });
-
-            gsap.to(line2Ref.current, {
-                y: "3vh",
-                scale: 1.1,
-                opacity: 0.8,
-                scrollTrigger: {
-                    trigger: containerRef.current,
-                    start: "top bottom",
-                    end: "bottom top",
-                    scrub: true
-                }
-            });
-
-            // Parallax Keywords
-            keywordRefs.current.forEach((ref, i) => {
-                if (!ref) return;
-                const speed = (i + 1) * 0.2;
-                gsap.to(ref, {
-                    y: `${-100 * speed}px`,
-                    x: `${(i % 2 === 0 ? 1 : -1) * 50}px`,
-                    scrollTrigger: {
-                        trigger: containerRef.current,
-                        start: "top bottom",
-                        end: "bottom top",
-                        scrub: true
-                    }
-                });
-            });
-
-            // Bio Reveal
-            if (bioRef.current) {
-                const lines = bioRef.current.querySelectorAll('.bio-line');
-                gsap.fromTo(lines,
-                    { opacity: 0, y: 20, filter: 'blur(5px)' },
-                    {
-                        opacity: 1, y: 0, filter: 'blur(0px)',
-                        stagger: 0.2,
-                        duration: 1.2,
-                        ease: "power3.out",
-                        scrollTrigger: {
-                            trigger: bioRef.current,
-                            start: "top 85%",
-                        }
-                    }
-                );
-            }
         }, containerRef);
 
         return () => ctx.revert();
@@ -173,114 +129,126 @@ export default function Philosophy({ data }: PhilosophyProps) {
                 </span>
             ))}
 
-            <div style={{ maxWidth: '1400px', width: '100%', position: 'relative', zIndex: 1 }}>
-                {/* Asymmetric Header */}
-                <div style={{ marginBottom: '10vh' }}>
-                    <span ref={labelRef} style={{
-                        color: 'var(--highlight)',
-                        fontSize: 'clamp(0.7rem, 1vw, 0.9rem)',
-                        letterSpacing: '0.5em',
-                        textTransform: 'uppercase',
-                        display: 'block',
-                        marginBottom: '4rem',
-                        fontWeight: 600,
-                        textAlign: 'center'
-                    }}>
-                        {label}
-                    </span>
-
-                    <div style={{
-                        position: 'relative',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        textAlign: 'center'
-                    }}>
-                        <h2
-                            ref={line1Ref}
-                            style={{
-                                fontSize: 'clamp(2.5rem, 9.5vw, 10rem)',
-                                fontWeight: 900,
-                                lineHeight: 1,
-                                textTransform: 'uppercase',
-                                margin: 0,
-                                letterSpacing: '-0.05em',
-                                color: 'var(--accent-white)',
-                                position: 'relative',
-                                zIndex: 2
-                            }}
-                        >
-                            {line1}
-                        </h2>
-                        <h2
-                            ref={line2Ref}
-                            style={{
-                                fontSize: 'clamp(1.5rem, 5vw, 4rem)',
-                                fontWeight: 800,
-                                lineHeight: 1.2,
-                                textTransform: 'uppercase',
-                                margin: '3vh 0 0 0',
-                                letterSpacing: '0.1em',
-                                color: 'var(--highlight)',
-                                WebkitTextStroke: 'none',
-                                textAlign: 'center',
-                                position: 'relative',
-                                zIndex: 1
-                            }}
-                        >
-                            {line2}
-                        </h2>
-                    </div>
-                </div>
-
-                {/* Editorial Bio Content */}
+            <div style={{ maxWidth: '1800px', width: '100%', position: 'relative', zIndex: 1 }}>
+                {/* Grid Container */}
                 <div style={{
-                    display: 'flex',
-                    justifyContent: 'flex-end',
-                    marginTop: '5vh'
-                }}>
-                    <div
-                        ref={bioRef}
-                        style={{
-                            maxWidth: '700px',
-                            textAlign: 'left'
-                        }}
-                    >
-                        <div style={{
-                            fontSize: 'clamp(1.1rem, 2vw, 1.8rem)',
-                            fontWeight: 300,
-                            lineHeight: 1.6,
-                            color: 'var(--soft-grey)',
+                    display: 'grid',
+                    gridTemplateColumns: '1.2fr 0.8fr',
+                    gap: '6rem',
+                    alignItems: 'center'
+                }} className="philosophy-grid">
+
+                    {/* Left Column: Titles */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
+                        <span ref={labelRef} style={{
+                            color: 'var(--highlight)',
+                            fontSize: 'clamp(0.7rem, 1vw, 0.8rem)',
+                            letterSpacing: '0.4em',
+                            textTransform: 'uppercase',
+                            display: 'block',
+                            fontWeight: 600,
+                            opacity: 0.8
                         }}>
-                            {splitIntoLines(bio)}
-                        </div>
+                            {label}
+                        </span>
 
                         <div style={{
-                            marginTop: '4rem',
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: '1rem',
-                            borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-                            paddingTop: '2rem'
+                            alignItems: 'flex-start',
+                            textAlign: 'left'
                         }}>
-                            {[
-                                "Intentional Minimalism",
-                                "Kinetic Precision",
-                                "Aesthetic Authority"
-                            ].map((text, i) => (
-                                <div key={i} style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '1rem',
-                                    fontSize: '0.75rem',
+                            <h2
+                                ref={line1Ref}
+                                style={{
+                                    fontSize: 'clamp(3rem, 9vw, 9rem)',
+                                    fontWeight: 900,
+                                    lineHeight: 0.9,
                                     textTransform: 'uppercase',
-                                    letterSpacing: '0.3em',
-                                    opacity: 0.4 + (i * 0.2)
-                                }}>
-                                    <span style={{ width: '40px', height: '1px', background: 'var(--highlight)' }} />
-                                    {text}
-                                </div>
-                            ))}
+                                    margin: 0,
+                                    letterSpacing: '-0.04em',
+                                    color: 'var(--accent-white)',
+                                    position: 'relative',
+                                    zIndex: 2
+                                }}
+                            >
+                                {line1}
+                            </h2>
+                            <h2
+                                ref={line2Ref}
+                                style={{
+                                    fontSize: 'clamp(1.5rem, 5vw, 3.5rem)',
+                                    fontWeight: 700,
+                                    lineHeight: 1,
+                                    textTransform: 'uppercase',
+                                    margin: '1.5rem 0 0 0',
+                                    letterSpacing: '-0.02em',
+                                    color: 'var(--highlight)',
+                                    WebkitTextStroke: 'none',
+                                    textAlign: 'left',
+                                    position: 'relative',
+                                    zIndex: 1
+                                }}
+                            >
+                                {line2}
+                            </h2>
+                        </div>
+                    </div>
+
+                    {/* Right Column: Bio & Pillars */}
+                    <div
+                        className="philosophy-right-content"
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 'clamp(2rem, 5vw, 4rem)',
+                            alignItems: 'flex-start'
+                        }}
+                    >
+                        <div
+                            ref={bioRef}
+                            style={{
+                                maxWidth: '550px',
+                                textAlign: 'left'
+                            }}
+                        >
+                            <div style={{
+                                fontSize: 'clamp(1rem, 1.4vw, 1.4rem)',
+                                fontWeight: 300,
+                                lineHeight: 1.6,
+                                color: 'var(--soft-grey)',
+                                letterSpacing: '0.02em'
+                            }}>
+                                {splitIntoLines(bio)}
+                            </div>
+
+                            <div style={{
+                                marginTop: '4rem',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '1.2rem',
+                                borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                                paddingTop: '2.5rem'
+                            }}>
+                                {[
+                                    "Intentional Minimalism",
+                                    "Kinetic Precision",
+                                    "Aesthetic Authority"
+                                ].map((text, i) => (
+                                    <div key={i} style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '1rem',
+                                        fontSize: '0.65rem',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.4em',
+                                        opacity: 0.3 + (i * 0.2)
+                                    }}>
+                                        <span style={{ width: '30px', height: '1px', background: 'var(--highlight)' }} />
+                                        {text}
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -298,6 +266,18 @@ export default function Philosophy({ data }: PhilosophyProps) {
                 pointerEvents: 'none',
                 zIndex: 0
             }} />
+
+            <style jsx>{`
+                @media (max-width: 1200px) {
+                    .philosophy-grid {
+                        grid-template-columns: 1fr !important;
+                        gap: 4rem !important;
+                    }
+                    .philosophy-right-content {
+                        align-items: flex-start !important;
+                    }
+                }
+            `}</style>
         </section>
     );
 }
