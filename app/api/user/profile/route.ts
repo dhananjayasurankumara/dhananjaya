@@ -61,11 +61,12 @@ export async function PUT(req: NextRequest) {
         if (bio !== undefined) updateData.bio = bio;
         if (avatar !== undefined) updateData.avatar = avatar;
 
-        const [updated] = await db
+        const rows = await db
             .update(portfolioUsers)
             .set(updateData)
             .where(eq(portfolioUsers.id, Number(session.id)))
             .returning();
+        const updated = (rows as any[])[0];
 
         if (name) {
             session.name = name;

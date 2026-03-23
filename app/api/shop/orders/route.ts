@@ -4,11 +4,12 @@ import { orders, cartItems, products } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { getSession } from '@/lib/session';
 
-export async function POST(req: NextRequest) {
+export async function POST(_req: NextRequest) {
     const session = await getSession();
     if (!session.isLoggedIn || !session.id) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    const userId = Number(session.id);
 
     // Get cart
     const cart = await db.select({
@@ -19,7 +20,7 @@ export async function POST(req: NextRequest) {
         price: products.price,
     })
         .from(cartItems)
-        .where(eq(cartItems.userId, session.id))
+        .where(eq(cartItems.userId, userId))
         .leftJoin(products, eq(cartItems.productId, products.id));
 
     if (cart.length === 0) {
@@ -29,15 +30,16 @@ export async function POST(req: NextRequest) {
     const items = cart.map(c => ({ productId: c.productId, title: c.title, qty: c.quantity, price: c.price }));
     const total = items.reduce((sum, item) => sum + (item.price || 0) * item.qty, 0);
 
-    const [order] = await db.insert(orders).values({
-        userId: session.id,
+    const rows = await db.insert(orders).values({
+        userId,
         items: JSON.stringify(items),
         total,
         status: 'pending',
     }).returning();
+    const order = (rows as any[])[0];
 
     // Clear cart
-    await db.delete(cartItems).where(eq(cartItems.userId, session.id));
+    await db.delete(cartItems).where(eq(cartItems.userId, userId));
 
     return NextResponse.json(order);
 }
@@ -47,6 +49,7 @@ export async function GET() {
     if (!session.isLoggedIn || !session.id) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    const userOrders = await db.select().from(orders).where(eq(orders.userId, session.id));
+    const userId = Number(session.id);
+    const userOrders = await db.select().from(orders).where(eq(orders.userId, userId));
     return NextResponse.json(userOrders);
 }
