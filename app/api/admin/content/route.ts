@@ -59,8 +59,8 @@ export async function PUT(req: NextRequest) {
     const table = tableMap[section];
     if (!table) return NextResponse.json({ error: 'Invalid section' }, { status: 400 });
 
-    const [updated] = await db.update(table).set(data).where(eq(table.id, id)).returning();
-    return NextResponse.json(updated);
+    const rows = await db.update(table).set(data).where(eq(table.id, id)).returning();
+    return NextResponse.json((rows as any[])[0]);
 }
 
 export async function POST(req: NextRequest) {
@@ -69,8 +69,8 @@ export async function POST(req: NextRequest) {
     const { section, data } = await req.json();
     const table = tableMap[section];
     if (!table) return NextResponse.json({ error: 'Invalid section' }, { status: 400 });
-    const [created] = await db.insert(table).values(data).returning();
-    return NextResponse.json(created);
+    const rows = await db.insert(table).values(data).returning();
+    return NextResponse.json((rows as any[])[0]);
 }
 
 export async function DELETE(req: NextRequest) {
