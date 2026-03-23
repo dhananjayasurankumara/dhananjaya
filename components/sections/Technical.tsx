@@ -28,7 +28,15 @@ export default function Technical({ data, bg }: TechnicalProps) {
     const stickyRef = useRef<HTMLDivElement>(null);  // sticky viewport
     const sectionRef = useRef<HTMLDivElement>(null); // horizontal strip
 
-    const technologies = (data && data.length > 0) ? data : defaultTech;
+    const rawTech = (data && data.length > 0) ? data : defaultTech;
+    // Deduplicate by name (case-insensitive) to remove DB duplicates
+    const seen = new Set<string>();
+    const technologies = rawTech.filter(t => {
+        const key = t.name?.toLowerCase();
+        if (!key || seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
 
     useEffect(() => {
         gsap.registerPlugin(ScrollTrigger);

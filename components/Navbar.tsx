@@ -37,12 +37,12 @@ export default function Navbar({ data }: NavbarProps) {
             .then(r => r.ok ? r.json() : null)
             .then(d => { setCurrentUser(d?.user ?? null); });
 
-        // Fetch navigation links
-        fetch('/api/admin/nav-links')
+        // Fetch navigation links from public endpoint (no auth required)
+        fetch('/api/nav-links')
             .then(r => r.ok ? r.json() : [])
             .then(d => {
-                const links = Array.isArray(d) ? d : (d.links || []);
-                setNavLinks(links.filter((l: any) => l.active).sort((a: any, b: any) => (a.displayOrder || 0) - (b.displayOrder || 0)));
+                const links = Array.isArray(d) ? d : [];
+                setNavLinks(links.sort((a: any, b: any) => (a.displayOrder || 0) - (b.displayOrder || 0)));
             });
 
         return () => window.removeEventListener('scroll', handleScroll);
@@ -118,26 +118,12 @@ export default function Navbar({ data }: NavbarProps) {
                         })}
                     </div>
 
-                    <span style={{ opacity: 0.15, fontWeight: 200, fontSize: '0.8rem' }}>|</span>
+                    {navLinks.length > 0 && <span style={{ opacity: 0.15, fontWeight: 200, fontSize: '0.8rem' }}>|</span>}
 
                     {/* Auth area */}
                     {isMounted && (
                         currentUser ? (
                             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                                {currentUser.role === 'admin' && (
-                                    <Link href="/admin" style={{
-                                        ...linkStyle, fontSize: '0.6rem',
-                                        padding: '0.4rem 0.9rem',
-                                        border: '1px solid rgba(255,200,50,0.3)',
-                                        borderRadius: '2rem',
-                                        color: 'rgba(255,200,50,0.8)',
-                                        background: 'rgba(255,200,50,0.05)',
-                                    }}
-                                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,200,50,0.1)'; e.currentTarget.style.color = 'rgba(255,220,80,1)'; }}
-                                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,200,50,0.05)'; e.currentTarget.style.color = 'rgba(255,200,50,0.8)'; }}>
-                                        ⚙ Admin
-                                    </Link>
-                                )}
                                 <Link href="/profile" style={linkStyle}
                                     onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
                                     onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.55)')}>
@@ -218,12 +204,6 @@ export default function Navbar({ data }: NavbarProps) {
                             {isMounted && (
                                 currentUser ? (
                                     <>
-                                        {currentUser.role === 'admin' && (
-                                            <Link href="/admin" onClick={() => setIsMobileMenuOpen(false)}
-                                                style={{ fontSize: '1.5rem', color: 'rgba(255,200,50,0.8)', textTransform: 'uppercase', textDecoration: 'none' }}>
-                                                ⚙ Admin Panel
-                                            </Link>
-                                        )}
                                         <Link href="/profile" onClick={() => setIsMobileMenuOpen(false)}
                                             style={{ fontSize: '1.5rem', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', textDecoration: 'none' }}>
                                             {currentUser.name}
