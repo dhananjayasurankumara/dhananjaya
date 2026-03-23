@@ -13,44 +13,51 @@ export default function MagneticText({ children, className, style }: MagneticTex
     const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const container = containerRef.current;
-        if (!container) return;
+        const ctx = gsap.context(() => {
+            const container = containerRef.current;
+            if (!container) return;
 
-        const chars = container.querySelectorAll('.mag-char');
+            const chars = container.querySelectorAll('.mag-char');
 
-        const onMouseMove = (e: MouseEvent) => {
-            const { clientX, clientY } = e;
+            const onMouseMove = (e: MouseEvent) => {
+                const { clientX, clientY } = e;
 
-            chars.forEach((char: any) => {
-                const rect = char.getBoundingClientRect();
-                const charX = rect.left + rect.width / 2;
-                const charY = rect.top + rect.height / 2;
+                chars.forEach((char: any) => {
+                    const rect = char.getBoundingClientRect();
+                    const charX = rect.left + rect.width / 2;
+                    const charY = rect.top + rect.height / 2;
 
-                const distX = clientX - charX;
-                const distY = clientY - charY;
-                const distance = Math.sqrt(distX * distX + distY * distY);
+                    const distX = clientX - charX;
+                    const distY = clientY - charY;
+                    const distance = Math.sqrt(distX * distX + distY * distY);
 
-                if (distance < 100) {
-                    const power = (100 - distance) / 100;
-                    gsap.to(char, {
-                        x: -distX * 0.2 * power,
-                        y: -distY * 0.2 * power,
-                        duration: 0.4,
-                        ease: 'power2.out',
-                    });
-                } else {
-                    gsap.to(char, {
-                        x: 0,
-                        y: 0,
-                        duration: 0.6,
-                        ease: 'elastic.out(1, 0.3)',
-                    });
-                }
-            });
-        };
+                    if (distance < 100) {
+                        const power = (100 - distance) / 100;
+                        gsap.to(char, {
+                            x: -distX * 0.2 * power,
+                            y: -distY * 0.2 * power,
+                            duration: 0.4,
+                            ease: 'power2.out',
+                        });
+                    } else {
+                        gsap.to(char, {
+                            x: 0,
+                            y: 0,
+                            duration: 0.6,
+                            ease: 'elastic.out(1, 0.3)',
+                        });
+                    }
+                });
+            };
 
-        window.addEventListener('mousemove', onMouseMove);
-        return () => window.removeEventListener('mousemove', onMouseMove);
+            window.addEventListener('mousemove', onMouseMove);
+            return () => {
+                window.removeEventListener('mousemove', onMouseMove);
+                gsap.killTweensOf(chars);
+            };
+        });
+
+        return () => ctx.revert();
     }, []);
 
     return (

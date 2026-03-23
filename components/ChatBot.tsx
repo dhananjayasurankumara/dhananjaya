@@ -113,11 +113,13 @@ export default function ChatBot() {
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
+                        key="chat-window-wrapper"
                         initial={{ opacity: 0, x: 40, y: 0, scale: 0.95, filter: 'blur(10px)' }}
                         animate={{ opacity: 1, x: 0, y: 0, scale: 1, filter: 'blur(0px)' }}
                         exit={{ opacity: 0, x: 40, y: 0, scale: 0.95, filter: 'blur(10px)' }}
                         transition={{ duration: 0.5, ease: [0.19, 1, 0.22, 1] }}
                         style={{
+                            position: 'relative',
                             width: 'min(90vw, 400px)',
                             height: 'min(70vh, 600px)',
                             background: 'rgba(5, 5, 5, 0.9)',

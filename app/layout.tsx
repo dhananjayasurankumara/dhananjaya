@@ -10,6 +10,8 @@ export const metadata: Metadata = {
     description: 'Ultra dark cinematic digital presence. Premium visual stories + Aesthetic precision.',
 };
 
+import StyledJsxRegistry from '@/lib/registry';
+
 export default async function RootLayout({
     children,
 }: {
@@ -25,9 +27,11 @@ export default async function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
             <body>
-                <ClientWrapper settings={settingsData}>
-                    {children}
-                </ClientWrapper>
+                <StyledJsxRegistry>
+                    <ClientWrapper settings={settingsData}>
+                        {children}
+                    </ClientWrapper>
+                </StyledJsxRegistry>
             </body>
         </html>
     );

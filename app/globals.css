@@ -34,8 +34,11 @@
   box-sizing: border-box;
   padding: 0;
   margin: 0;
+}
+
+/* Custom cursor only for portfolio pages, not admin */
+body:not(.admin-mode) * {
   cursor: none;
-  /* We'll implement a custom cursor */
 }
 
 html,
@@ -105,3 +108,102 @@ canvas {
   opacity: 0.05;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
+
+/* Navbar Responsive */
+@media (max-width: 1024px) {
+    .desktop-nav { display: none !important; }
+    .mobile-toggle { display: flex !important; }
+}
+
+/* Contact Responsive */
+@media (max-width: 1200px) {
+    .contact-grid-container {
+        grid-template-columns: 1fr !important;
+        gap: 4rem !important;
+        text-align: center !important;
+    }
+    .contact-right-suite {
+        align-items: center !important;
+        text-align: center !important;
+    }
+    .line {
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        display: flex !important;
+    }
+}
+
+/* Hero Responsive */
+@media (max-width: 768px) {
+    .line-1, .line-2 { 
+        white-space: normal !important; 
+        word-break: break-word;
+    }
+}
+@media (min-width: 769px) {
+    .line-1, .line-2 { 
+        white-space: nowrap !important;
+    }
+}
+
+/* About Responsive */
+@media (max-width: 768px) {
+    #about {
+        padding-top: 15vh !important;
+        text-align: right !important;
+        align-items: flex-end !important;
+    }
+    .about-grid {
+        grid-template-columns: 1fr !important;
+        gap: 2.5rem !important;
+    }
+    .about-description {
+        max-width: 100% !important;
+    }
+}
+
+/* Philosophy Responsive */
+@media (max-width: 1200px) {
+    .philosophy-grid {
+        grid-template-columns: 1fr !important;
+        gap: 4rem !important;
+    }
+    .philosophy-right-content {
+        align-items: flex-start !important;
+    }
+}
+
+/* Work Responsive */
+@media (max-width: 768px) {
+    .project-panel {
+        min-height: 80vh !important;
+    }
+    .project-content-wrapper {
+        padding: 0 1rem !important;
+    }
+}
+
+/* Support Responsive */
+@media (max-width: 768px) {
+    #support {
+        padding: 8vh var(--gutter) !important;
+    }
+    .support-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* Technical Responsive */
+@media (max-width: 768px) {
+    .tech-bg-number {
+        display: none !important;
+    }
+    .section-content {
+        padding: 0 1rem !important;
+    }
+}
+
+
+
+

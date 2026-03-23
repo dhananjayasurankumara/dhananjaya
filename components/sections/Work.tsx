@@ -16,6 +16,11 @@ interface Project {
 
 interface WorkProps {
     data?: Project[];
+    bg?: {
+        imageUrl?: string | null;
+        imagePosition?: string;
+        overlayOpacity?: number;
+    };
 }
 
 const defaultProjects: Project[] = [
@@ -39,54 +44,86 @@ const defaultProjects: Project[] = [
     },
 ];
 
-export default function Work({ data }: WorkProps) {
+export default function Work({ data, bg }: WorkProps) {
     const containerRef = useRef<HTMLDivElement>(null);
-    const displayProjects = data && data.length > 0 ? data : defaultProjects;
+    const displayProjects = (data && data.length > 0) ? data : defaultProjects;
 
     useEffect(() => {
         gsap.registerPlugin(ScrollTrigger);
 
-        const panels = gsap.utils.toArray('.project-panel');
+        const ctx = gsap.context(() => {
+            const panels = containerRef.current?.querySelectorAll('.project-panel');
+            if (!panels) return;
 
-        panels.forEach((panel: any) => {
-            const img = panel.querySelector('img');
-            const content = panel.querySelector('.project-content-wrapper');
+            panels.forEach((panel: any) => {
+                const img = panel.querySelector('img');
+                const content = panel.querySelector('.project-content-wrapper');
 
-            if (img) {
-                gsap.fromTo(img,
-                    { scale: 1.2 },
-                    {
-                        scale: 1,
-                        ease: 'none',
-                        scrollTrigger: {
-                            trigger: panel,
-                            start: 'top bottom',
-                            end: 'bottom top',
-                            scrub: true,
+                if (img) {
+                    gsap.fromTo(img,
+                        { scale: 1.2 },
+                        {
+                            scale: 1,
+                            ease: 'none',
+                            scrollTrigger: {
+                                trigger: panel,
+                                start: 'top bottom',
+                                end: 'bottom top',
+                                scrub: true,
+                            }
                         }
-                    }
-                );
-            }
-
-            gsap.fromTo(content,
-                { y: 100, opacity: 0 },
-                {
-                    y: 0,
-                    opacity: 1,
-                    duration: 1,
-                    ease: 'power3.out',
-                    scrollTrigger: {
-                        trigger: panel,
-                        start: 'top 60%',
-                        toggleActions: 'play none none reverse'
-                    }
+                    );
                 }
-            );
-        });
+
+                if (content) {
+                    gsap.fromTo(content,
+                        { y: 100, opacity: 0 },
+                        {
+                            y: 0,
+                            opacity: 1,
+                            duration: 1,
+                            ease: 'power3.out',
+                            scrollTrigger: {
+                                trigger: panel,
+                                start: 'top 60%',
+                                toggleActions: 'play none none reverse'
+                            }
+                        }
+                    );
+                }
+            });
+        }, containerRef);
+
+        return () => ctx.revert();
     }, [displayProjects]);
 
     return (
-        <section id="work" ref={containerRef} style={{ background: 'var(--deep-black)' }}>
+        <section id="work" ref={containerRef} style={{ background: 'var(--deep-black)', position: 'relative' }}>
+            
+            {/* Dynamic Background Image for the whole section */}
+            {bg?.imageUrl && (
+                <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    backgroundImage: `url("${bg.imageUrl}")`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: bg.imagePosition || 'center',
+                    opacity: 0.15,
+                    zIndex: 0,
+                    pointerEvents: 'none',
+                    filter: 'blur(20px)'
+                }} />
+            )}
+
+            {/* Dark Overlay based on admin setting */}
+           <div style={{
+                position: 'absolute',
+                inset: 0,
+                background: `rgba(0,0,0,${bg?.overlayOpacity || 0.9})`,
+                zIndex: 0,
+                pointerEvents: 'none'
+            }} />
+
             {/* Intro Title Panel */}
             <div
                 className="project-panel intro-panel"
@@ -99,7 +136,8 @@ export default function Work({ data }: WorkProps) {
                     position: 'relative',
                     overflow: 'hidden',
                     borderBottom: '1px solid rgba(255,255,255,0.05)',
-                    padding: 'var(--spacing-xl) var(--gutter)'
+                    padding: 'var(--spacing-xl) var(--gutter)',
+                    zIndex: 1
                 }}
             >
                 <div className="section-content project-content-wrapper" style={{ textAlign: 'center', maxWidth: '800px' }}>
@@ -124,17 +162,6 @@ export default function Work({ data }: WorkProps) {
                         Selected<br />
                         <span style={{ fontWeight: 600, color: 'var(--accent-white)' }}>Works</span>
                     </h2>
-                    <p style={{
-                        maxWidth: '500px',
-                        margin: 'clamp(2rem, 5vw, 4rem) auto 0',
-                        fontSize: 'clamp(0.9rem, 1.2vw, 1.1rem)',
-                        lineHeight: 1.6,
-                        opacity: 0.5,
-                        fontWeight: 300,
-                        letterSpacing: '0.02em'
-                    }}>
-                        A curated collection of digital experiences where cinematic aesthetics meet technical precision.
-                    </p>
                 </div>
             </div>
 
@@ -143,14 +170,15 @@ export default function Work({ data }: WorkProps) {
                     key={index}
                     className="project-panel"
                     style={{
-                        minHeight: '100vh', // Changed to minHeight
+                        minHeight: '100vh',
                         width: '100%',
                         position: 'relative',
                         overflow: 'hidden',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        padding: '10vh var(--gutter)'
+                        padding: '10vh var(--gutter)',
+                        zIndex: 1
                     }}
                 >
                     <div style={{
@@ -183,7 +211,7 @@ export default function Work({ data }: WorkProps) {
                             display: 'block',
                             marginBottom: '1rem'
                         }}>
-                            {project.tags}
+                            {project.tags || 'Creative / Interaction'}
                         </span>
                         <h3 style={{
                             fontSize: 'clamp(2.5rem, 7vw, 6rem)',
@@ -198,14 +226,14 @@ export default function Work({ data }: WorkProps) {
                         <div style={{
                             marginTop: 'clamp(2rem, 5vw, 4rem)',
                             display: 'inline-block',
-                            padding: '1rem 3rem', // Larger touch area
+                            padding: '1rem 3rem',
                             border: '1px solid rgba(255,255,255,0.3)',
                             fontSize: 'clamp(0.65rem, 1vw, 0.75rem)',
                             textTransform: 'uppercase',
                             letterSpacing: '0.2em',
                             cursor: 'pointer',
                             transition: 'var(--transition-smooth)',
-                            borderRadius: '3rem' // More modern pill shape
+                            borderRadius: '3rem'
                         }}
                             className="view-project-btn"
                             onClick={() => project.link && window.open(project.link, '_blank')}
@@ -216,16 +244,6 @@ export default function Work({ data }: WorkProps) {
                 </div>
             ))}
 
-            <style jsx>{`
-                @media (max-width: 768px) {
-                    .project-panel {
-                        min-height: 80vh !important;
-                    }
-                    .project-content-wrapper {
-                        padding: 0 1rem !important;
-                    }
-                }
-            `}</style>
         </section>
     );
 }

@@ -12,48 +12,54 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
     const welcomeRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const tl = gsap.timeline({
-            onComplete: () => {
-                setTimeout(onComplete, 500);
-            }
-        });
+        const ctx = gsap.context(() => {
+            const tl = gsap.timeline({
+                onComplete: () => {
+                    onComplete();
+                }
+            });
 
-        // 1. Initial Black Screen Delay
-        tl.to({}, { duration: 0.5 });
+            // 1. Initial Black Screen Delay
+            tl.to({}, { duration: 0.5 });
 
-        // 2. Logo Animation
-        tl.fromTo(logoRef.current,
-            { scale: 2.5, opacity: 0, filter: 'blur(30px)' },
-            { scale: 1, opacity: 1, filter: 'blur(0px)', duration: 1.5, ease: "expo.out" }
-        );
-
-        tl.to({}, { duration: 0.5 }); // Hold logo
-
-        tl.to(logoRef.current, {
-            scale: 1.1, opacity: 0, filter: 'blur(15px)', duration: 0.8, ease: "power2.in"
-        });
-
-        // 3. Welcome Sequence (New Device Setup Style)
-        const welcomeTexts = [
-            { ref: helloRef, hold: 0.8 },
-            { ref: nameRef, hold: 1.0 },
-            { ref: welcomeRef, hold: 1.5 }
-        ];
-
-        welcomeTexts.forEach((item) => {
-            tl.fromTo(item.ref.current,
-                { opacity: 0, y: 15, filter: 'blur(15px)' },
-                { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.2, ease: "power3.out" }
-            )
-                .to({}, { duration: item.hold })
-                .to(item.ref.current,
-                    { opacity: 0, y: -15, filter: 'blur(15px)', duration: 1, ease: "power3.in" }
+            // 2. Logo Animation
+            if (logoRef.current) {
+                tl.fromTo(logoRef.current,
+                    { scale: 2.5, opacity: 0, filter: 'blur(30px)' },
+                    { scale: 1, opacity: 1, filter: 'blur(0px)', duration: 1.5, ease: "expo.out" }
                 );
+            }
+
+            tl.to({}, { duration: 0.5 }); // Hold logo
+
+            if (logoRef.current) {
+                tl.to(logoRef.current, {
+                    scale: 1.1, opacity: 0, filter: 'blur(15px)', duration: 0.8, ease: "power2.in"
+                });
+            }
+
+            // 3. Welcome Sequence
+            const welcomeTexts = [
+                { ref: helloRef, hold: 0.8 },
+                { ref: nameRef, hold: 1.0 },
+                { ref: welcomeRef, hold: 1.5 }
+            ];
+
+            welcomeTexts.forEach((item) => {
+                if (item.ref.current) {
+                    tl.fromTo(item.ref.current,
+                        { opacity: 0, y: 15, filter: 'blur(15px)' },
+                        { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.2, ease: "power3.out" }
+                    )
+                        .to({}, { duration: item.hold })
+                        .to(item.ref.current,
+                            { opacity: 0, y: -15, filter: 'blur(15px)', duration: 1, ease: "power3.in" }
+                        );
+                }
+            });
         });
 
-        return () => {
-            tl.kill();
-        };
+        return () => ctx.revert();
     }, [onComplete]);
 
     const textStyle: React.CSSProperties = {
@@ -75,12 +81,12 @@ export default function LoadingScreen({ onComplete }: { onComplete: () => void }
             initial={{ opacity: 1 }}
             exit={{
                 opacity: 0,
-                transition: { duration: 2, ease: [0.76, 0, 0.24, 1] }
+                transition: { duration: 1, ease: [0.76, 0, 0.24, 1] }
             }}
             style={{
                 position: 'fixed',
                 inset: 0,
-                zIndex: 9999,
+                zIndex: 10005,
                 background: 'var(--deep-black)',
                 display: 'flex',
                 alignItems: 'center',

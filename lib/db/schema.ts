@@ -1,16 +1,44 @@
-import { pgTable, serial, text, timestamp, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, timestamp, boolean, integer, real } from 'drizzle-orm/pg-core';
 
-// Site-wide settings
+// ─── Site Settings ────────────────────────────────────────────────────────────
 export const siteSettings = pgTable('site_settings', {
     id: serial('id').primaryKey(),
     logoText: text('logo_text').default('DANANJAYA'),
     email: text('email').default('dhananjayasurankumara@gmail.com'),
     whatsapp: text('whatsapp').default('94702096510'),
     linkedin: text('linkedin').default('https://linkedin.com/in/dananjaya-suran-kumara'),
+    twitter: text('twitter'),
+    instagram: text('instagram'),
+    github: text('github'),
+    phone: text('phone'),
+    address: text('address'),
+    metaDescription: text('meta_description'),
+    metaKeywords: text('meta_keywords'),
+    footerText: text('footer_text'),
+    themeColor: text('theme_color').default('#ff3333'),
     updatedAt: timestamp('updated_at').defaultNow(),
 });
 
-// Hero section
+export const navLinks = pgTable('nav_links', {
+    id: serial('id').primaryKey(),
+    label: text('label').notNull(),
+    href: text('href').notNull(),
+    type: text('type').default('internal'), // 'internal', 'hash', 'external'
+    displayOrder: integer('display_order').default(0),
+    active: boolean('active').default(true),
+    createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const backgroundImages = pgTable('background_images', {
+    id: serial('id').primaryKey(),
+    section: text('section').notNull().unique(), // 'hero', 'about', etc.
+    imageUrl: text('image_url'),
+    imagePosition: text('image_position').default('center'),
+    overlayOpacity: real('overlay_opacity').default(0.5),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// ─── Hero Section ─────────────────────────────────────────────────────────────
 export const heroContent = pgTable('hero_content', {
     id: serial('id').primaryKey(),
     headline: text('headline').default('DESIGNING VISUAL STORIES.'),
@@ -19,7 +47,7 @@ export const heroContent = pgTable('hero_content', {
     updatedAt: timestamp('updated_at').defaultNow(),
 });
 
-// About section
+// ─── About Section ────────────────────────────────────────────────────────────
 export const aboutContent = pgTable('about_content', {
     id: serial('id').primaryKey(),
     title: text('title').default('Architect of Digital Experiences'),
@@ -33,7 +61,7 @@ export const aboutContent = pgTable('about_content', {
     updatedAt: timestamp('updated_at').defaultNow(),
 });
 
-// Projects
+// ─── Projects ─────────────────────────────────────────────────────────────────
 export const projects = pgTable('projects', {
     id: serial('id').primaryKey(),
     title: text('title').notNull(),
@@ -45,7 +73,7 @@ export const projects = pgTable('projects', {
     createdAt: timestamp('created_at').defaultNow(),
 });
 
-// Philosophy section
+// ─── Philosophy Section ───────────────────────────────────────────────────────
 export const philosophyContent = pgTable('philosophy_content', {
     id: serial('id').primaryKey(),
     label: text('label').default('Digital Alchemy / Creative Engineering'),
@@ -55,20 +83,20 @@ export const philosophyContent = pgTable('philosophy_content', {
     updatedAt: timestamp('updated_at').defaultNow(),
 });
 
-// Technical Mastery (Skills)
+// ─── Technical Skills ─────────────────────────────────────────────────────────
 export const technicalSkills = pgTable('technical_skills', {
     id: serial('id').primaryKey(),
     name: text('name').notNull(),
-    type: text('type').notNull(), // Language, Framework, Motion, etc.
+    type: text('type').notNull(),
     order: serial('order'),
     createdAt: timestamp('created_at').defaultNow(),
 });
 
-// Presence (Social Links)
+// ─── Presence Links ───────────────────────────────────────────────────────────
 export const presenceLinks = pgTable('presence_links', {
     id: serial('id').primaryKey(),
     name: text('name').notNull(),
-    platformId: text('platform_id').notNull(), // for icon mapping
+    platformId: text('platform_id').notNull(),
     url: text('url').notNull(),
     color: text('color'),
     tagline: text('tagline'),
@@ -76,21 +104,69 @@ export const presenceLinks = pgTable('presence_links', {
     createdAt: timestamp('created_at').defaultNow(),
 });
 
-// Support items
+// ─── Support Items ────────────────────────────────────────────────────────────
 export const supportItems = pgTable('support_items', {
     id: serial('id').primaryKey(),
     title: text('title').notNull(),
     description: text('description'),
-    icon: text('icon'), // coffee, pizza, etc.
+    icon: text('icon'),
     url: text('url').notNull(),
     updatedAt: timestamp('updated_at').defaultNow(),
 });
 
-// Contact form submissions
+// ─── Contacts ─────────────────────────────────────────────────────────────────
 export const contacts = pgTable('contacts', {
     id: serial('id').primaryKey(),
     name: text('name').notNull(),
     email: text('email').notNull(),
     message: text('message').notNull(),
+    createdAt: timestamp('created_at').defaultNow(),
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PORTFOLIO AUTH — uses a dedicated table (portfolio_users) to avoid
+// conflicts with the legacy NextAuth "users" table already in the DB.
+// ─────────────────────────────────────────────────────────────────────────────
+export const portfolioUsers = pgTable('portfolio_users', {
+    id: serial('id').primaryKey(),
+    name: text('name').notNull(),
+    email: text('email').notNull().unique(),
+    passwordHash: text('password_hash').notNull(),
+    avatar: text('avatar'),
+    bio: text('bio'),
+    role: text('role').default('user'), // 'user' | 'admin'
+    createdAt: timestamp('created_at').defaultNow(),
+});
+
+// ─── Products ─────────────────────────────────────────────────────────────────
+export const products = pgTable('products', {
+    id: serial('id').primaryKey(),
+    title: text('title').notNull(),
+    description: text('description'),
+    price: real('price').notNull().default(0),
+    imageUrl: text('image_url'),
+    category: text('category'),
+    stock: integer('stock').default(0),
+    featured: boolean('featured').default(false),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// ─── Orders ───────────────────────────────────────────────────────────────────
+export const orders = pgTable('orders', {
+    id: serial('id').primaryKey(),
+    userId: integer('user_id').notNull(),
+    items: text('items').notNull(), // JSON: [{productId, title, qty, price}]
+    total: real('total').notNull(),
+    status: text('status').default('pending'),
+    createdAt: timestamp('created_at').defaultNow(),
+});
+
+// ─── Cart Items ───────────────────────────────────────────────────────────────
+export const cartItems = pgTable('cart_items', {
+    id: serial('id').primaryKey(),
+    userId: integer('user_id').notNull(),
+    productId: integer('product_id').notNull(),
+    quantity: integer('quantity').notNull().default(1),
     createdAt: timestamp('created_at').defaultNow(),
 });

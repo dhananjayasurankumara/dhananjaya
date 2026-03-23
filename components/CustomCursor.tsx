@@ -12,6 +12,8 @@ export default function CustomCursor() {
         const follower = followerRef.current;
         if (!cursor || !follower) return;
 
+        const ctx = gsap.context(() => {});
+
         const onMouseMove = (e: MouseEvent) => {
             const { clientX, clientY } = e;
 
@@ -29,7 +31,12 @@ export default function CustomCursor() {
         };
 
         window.addEventListener('mousemove', onMouseMove);
-        return () => window.removeEventListener('mousemove', onMouseMove);
+
+        return () => {
+            ctx.revert();
+            window.removeEventListener('mousemove', onMouseMove);
+            gsap.killTweensOf([cursor, follower]);
+        };
     }, []);
 
     return (

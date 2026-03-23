@@ -16,9 +16,14 @@ interface AboutProps {
         stat3Value?: string;
         stat3Label?: string;
     };
+    bg?: {
+        imageUrl?: string | null;
+        imagePosition?: string;
+        overlayOpacity?: number;
+    };
 }
 
-export default function About({ data }: AboutProps) {
+export default function About({ data, bg }: AboutProps) {
     const sectionRef = useRef<HTMLDivElement>(null);
     const contentRef = useRef<HTMLDivElement>(null);
     const imageRef = useRef<HTMLDivElement>(null);
@@ -126,17 +131,17 @@ export default function About({ data }: AboutProps) {
                     width: '100%',
                     height: '115%', // Adjusted for parallax
                     zIndex: 0,
-                    opacity: 0.35,
+                    opacity: 1, // Full opacity for the container, image filter handles the look
                     pointerEvents: 'none'
                 }}
             >
                 <Image
-                    src="/hero.png"
+                    src={bg?.imageUrl || "/hero.png"}
                     alt="Background"
                     fill
                     style={{
                         objectFit: 'cover',
-                        objectPosition: 'center',
+                        objectPosition: bg?.imagePosition || 'center',
                         filter: 'grayscale(30%) brightness(0.6)'
                     }}
                 />
@@ -145,11 +150,11 @@ export default function About({ data }: AboutProps) {
                     inset: 0,
                     background: 'linear-gradient(to bottom, var(--deep-black) 0%, transparent 15%, transparent 85%, var(--deep-black) 100%)'
                 }} />
-                {/* Secondary darkening overlay */}
+                {/* Dynamic darkening overlay from admin */}
                 <div style={{
                     position: 'absolute',
                     inset: 0,
-                    background: 'rgba(0,0,0,0.6)'
+                    background: `rgba(0,0,0,${bg?.overlayOpacity || 0.6})`
                 }} />
             </div>
 
@@ -276,22 +281,6 @@ export default function About({ data }: AboutProps) {
                 DNA
             </div>
 
-            <style jsx>{`
-                @media (max-width: 768px) {
-                    section {
-                        padding-top: 15vh !important;
-                        text-align: right !important;
-                        align-items: flex-end !important;
-                    }
-                    .about-grid {
-                        grid-template-columns: 1fr !important;
-                        gap: 2.5rem !important;
-                    }
-                    .about-description {
-                        max-width: 100% !important;
-                    }
-                }
-            `}</style>
         </section>
     );
 }

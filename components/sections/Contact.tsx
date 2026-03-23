@@ -13,10 +13,16 @@ interface ContactProps {
         email?: string;
         whatsapp?: string;
         linkedin?: string;
+        footerText?: string;
+    };
+    bg?: {
+        imageUrl?: string | null;
+        imagePosition?: string;
+        overlayOpacity?: number;
     };
 }
 
-export default function Contact({ data }: ContactProps) {
+export default function Contact({ data, bg }: ContactProps) {
     const sectionRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const leftTitleRef = useRef<HTMLDivElement>(null);
@@ -91,6 +97,20 @@ export default function Contact({ data }: ContactProps) {
                 padding: '10vh var(--gutter)'
             }}
         >
+            {/* Dynamic Background Image */}
+            {bg?.imageUrl && (
+                <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    backgroundImage: `url("${bg.imageUrl}")`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: bg.imagePosition || 'center',
+                    opacity: 0.15,
+                    zIndex: 0,
+                    pointerEvents: 'none'
+                }} />
+            )}
+
             <div
                 ref={bgRef}
                 style={{
@@ -99,12 +119,21 @@ export default function Contact({ data }: ContactProps) {
                     left: '-30%',
                     width: '160%',
                     height: '160%',
-                    background: 'radial-gradient(circle at center, rgba(255, 255, 255, 0.015) 0%, transparent 70%)',
+                    background: `radial-gradient(circle at center, rgba(255, 255, 255, ${Math.max(0.015, 0.05 - (bg?.overlayOpacity || 0.5) * 0.05)}) 0%, transparent 70%)`,
                     zIndex: 0,
                     pointerEvents: 'none',
                     filter: 'blur(120px)'
                 }}
             />
+
+            {/* Dark Overlay based on admin setting */}
+            <div style={{
+                position: 'absolute',
+                inset: 0,
+                background: `rgba(0,0,0,${bg?.overlayOpacity || 0.8})`,
+                zIndex: 0,
+                pointerEvents: 'none'
+            }} />
 
             <div
                 ref={containerRef}
@@ -236,26 +265,6 @@ export default function Contact({ data }: ContactProps) {
                 </div>
             </div>
 
-            <style jsx>{`
-                @media (max-width: 1200px) {
-                    .contact-grid-container {
-                        grid-template-columns: 1fr !important;
-                        gap: 4rem !important;
-                        text-align: center !important;
-                    }
-                    .contact-right-suite {
-                        align-items: center !important;
-                        text-align: center !important;
-                    }
-                    .line {
-                        align-items: center !important;
-                        justify-content: center !important;
-                        width: 100% !important;
-                        display: flex !important;
-                    }
-                }
-            `}</style>
-
             <div style={{
                 position: 'absolute',
                 bottom: '3rem',
@@ -265,7 +274,7 @@ export default function Contact({ data }: ContactProps) {
                 letterSpacing: '0.3em',
                 textTransform: 'uppercase'
             }}>
-                © 2024 Dananjaya. Portfolio Experience.
+                {data?.footerText || `© ${new Date().getFullYear()} Dananjaya. Portfolio Experience.`}
             </div>
         </section>
     );

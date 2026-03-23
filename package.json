@@ -14,6 +14,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@auth/drizzle-adapter": "^1.11.1",
     "@neondatabase/serverless": "^1.0.2",
     "@react-three/drei": "^9.102.0",
     "@react-three/fiber": "^8.16.8",
@@ -30,6 +31,7 @@
     "lenis": "^1.3.17",
     "lucide-react": "^0.475.0",
     "next": "^14.2.35",
+    "next-auth": "^5.0.0-beta.30",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tailwind-merge": "^3.5.0",

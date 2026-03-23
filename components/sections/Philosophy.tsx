@@ -11,9 +11,14 @@ interface PhilosophyProps {
         line2?: string;
         bio?: string;
     };
+    bg?: {
+        imageUrl?: string | null;
+        imagePosition?: string;
+        overlayOpacity?: number;
+    };
 }
 
-export default function Philosophy({ data }: PhilosophyProps) {
+export default function Philosophy({ data, bg }: PhilosophyProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const line1Ref = useRef<HTMLHeadingElement>(null);
     const line2Ref = useRef<HTMLHeadingElement>(null);
@@ -106,6 +111,31 @@ export default function Philosophy({ data }: PhilosophyProps) {
                 alignItems: 'center'
             }}
         >
+            {/* Dynamic Background Image */}
+            {bg?.imageUrl && (
+                <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    backgroundImage: `url("${bg.imageUrl}")`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: bg.imagePosition || 'center',
+                    opacity: 0.15, // Keep it subtle for philosophy
+                    zIndex: 0,
+                    pointerEvents: 'none',
+                }} />
+            )}
+
+            {/* Dark Overlay based on admin setting */}
+            <div style={{
+                position: 'absolute',
+                inset: 0,
+                background: `rgba(0,0,0,${bg?.overlayOpacity || 0.9})`,
+                zIndex: 0,
+                pointerEvents: 'none'
+            }} />
             {/* Background Kinetic Keywords */}
             {keywords.map((word, i) => (
                 <span
@@ -266,18 +296,6 @@ export default function Philosophy({ data }: PhilosophyProps) {
                 pointerEvents: 'none',
                 zIndex: 0
             }} />
-
-            <style jsx>{`
-                @media (max-width: 1200px) {
-                    .philosophy-grid {
-                        grid-template-columns: 1fr !important;
-                        gap: 4rem !important;
-                    }
-                    .philosophy-right-content {
-                        align-items: flex-start !important;
-                    }
-                }
-            `}</style>
         </section>
     );
 }
