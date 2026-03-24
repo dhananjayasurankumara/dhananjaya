@@ -117,8 +117,8 @@ export default function Technical({ data, bg }: TechnicalProps) {
             style={{
                 background: 'var(--deep-black)',
                 position: 'relative',
-                padding: 'clamp(5rem, 12vh, 9rem) 0',
-                minHeight: '70vh',
+                padding: 'clamp(6rem, 15vh, 11rem) 0',
+                minHeight: '100vh',
                 zIndex: 1,
                 overflow: 'hidden',
             }}
