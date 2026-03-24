@@ -28,8 +28,7 @@ export default function Technical({ data, bg }: TechnicalProps) {
     const stickyRef = useRef<HTMLDivElement>(null);
     const sectionRef = useRef<HTMLDivElement>(null);
 
-    // Only show DB skills if they exist; otherwise fall back to defaults.
-    // Deduplicate by name (case-insensitive).
+    // Use DB skills if populated, otherwise use defaults. Deduplicate by name.
     const technologies = useMemo(() => {
         const source = (data && data.length > 0) ? data : defaultTech;
         const seen = new Set<string>();
@@ -49,52 +48,64 @@ export default function Technical({ data, bg }: TechnicalProps) {
         const section = sectionRef.current;
         if (!outer || !sticky || !section) return;
 
-        // Dynamically calculate the scroll height based on actual content width
-        const computeHeight = () => {
-            const totalScroll = section.scrollWidth - window.innerWidth;
-            outer.style.height = `${Math.max(totalScroll, 0) + window.innerHeight}px`;
-        };
+        let ctx: gsap.Context;
 
-        // Small delay to let the DOM fully paint before measuring
-        const timer = setTimeout(computeHeight, 100);
+        // Double rAF ensures the browser has fully laid out the horizontal strip
+        // before we measure scrollWidth — this is why the scroll was starting mid-way.
+        const raf1 = requestAnimationFrame(() => {
+            const raf2 = requestAnimationFrame(() => {
+                const computeHeight = () => {
+                    const totalScroll = section.scrollWidth - window.innerWidth;
+                    outer.style.height = `${Math.max(totalScroll, 0) + window.innerHeight}px`;
+                };
 
-        const ctx = gsap.context(() => {
-            gsap.to(section, {
-                x: () => -(section.scrollWidth - window.innerWidth),
-                ease: 'none',
-                scrollTrigger: {
-                    trigger: outer,
-                    start: 'top top',
-                    end: 'bottom bottom',
-                    scrub: 1,
-                    invalidateOnRefresh: true,
-                    onRefresh: computeHeight,
-                },
+                // Set height FIRST, then create the ScrollTrigger
+                computeHeight();
+
+                ctx = gsap.context(() => {
+                    gsap.to(section, {
+                        x: () => -(section.scrollWidth - window.innerWidth),
+                        ease: 'none',
+                        scrollTrigger: {
+                            trigger: outer,
+                            start: 'top top',
+                            end: 'bottom bottom',
+                            scrub: 1,
+                            invalidateOnRefresh: true,
+                            onRefresh: computeHeight,
+                        },
+                    });
+                }, outer);
             });
-        }, outer);
+        });
 
-        window.addEventListener('resize', computeHeight);
+        const handleResize = () => ScrollTrigger.refresh();
+        window.addEventListener('resize', handleResize);
 
         return () => {
-            clearTimeout(timer);
-            ctx.revert();
-            window.removeEventListener('resize', computeHeight);
+            cancelAnimationFrame(raf1);
+            ctx?.revert();
+            window.removeEventListener('resize', handleResize);
         };
     }, [technologies]);
+
+    // Pre-calculate a rough initial height so the page layout
+    // reserves enough space before JS runs (avoids layout shift)
+    const estimatedSlides = technologies.length + 1; // +1 for intro slide
+    const initialHeight = `${estimatedSlides * 100}vw`;
 
     return (
         <div
             id="tech"
             ref={outerRef}
             style={{
+                height: initialHeight,
                 background: 'var(--deep-black)',
                 position: 'relative',
                 zIndex: 1,
-                // Height is set dynamically in useEffect; 100vh is just a fallback
-                height: '100vh',
             }}
         >
-            {/* CSS sticky keeps the viewport locked while the outer container scrolls */}
+            {/* CSS sticky keeps the viewport locked while outer scrolls */}
             <div
                 ref={stickyRef}
                 style={{
@@ -108,7 +119,7 @@ export default function Technical({ data, bg }: TechnicalProps) {
                     justifyContent: 'center',
                 }}
             >
-                {/* Dynamic Background Image */}
+                {/* Dynamic Background */}
                 {bg?.imageUrl && (
                     <div style={{
                         position: 'absolute', inset: 0,
@@ -123,11 +134,11 @@ export default function Technical({ data, bg }: TechnicalProps) {
                 {/* Overlay */}
                 <div style={{
                     position: 'absolute', inset: 0,
-                    background: `rgba(0,0,0,${bg?.overlayOpacity ?? 0.95})`,
+                    background: `rgba(0,0,0,${bg?.overlayOpacity ?? 0.92})`,
                     zIndex: 0, pointerEvents: 'none',
                 }} />
 
-                {/* Horizontal strip — GSAP translates this */}
+                {/* Horizontal strip — GSAP translates this on X axis */}
                 <div
                     ref={sectionRef}
                     style={{
@@ -143,10 +154,13 @@ export default function Technical({ data, bg }: TechnicalProps) {
                 >
                     {/* ── Intro Slide ── */}
                     <div style={{
-                        width: '100vw', height: '100%',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        padding: '0 clamp(2rem, 8vw, 8rem)',
+                        width: '100vw',
+                        height: '100%',
                         flexShrink: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '0 clamp(2rem, 8vw, 8rem)',
                     }}>
                         <div style={{ maxWidth: '800px', textAlign: 'center' }}>
                             <span style={{
@@ -173,9 +187,9 @@ export default function Technical({ data, bg }: TechnicalProps) {
                             </h2>
                             <p style={{
                                 marginTop: '2rem',
-                                color: 'rgba(255,255,255,0.35)',
-                                fontSize: 'clamp(0.75rem, 1.2vw, 0.9rem)',
-                                letterSpacing: '0.05em',
+                                color: 'rgba(255,255,255,0.3)',
+                                fontSize: 'clamp(0.7rem, 1.1vw, 0.85rem)',
+                                letterSpacing: '0.1em',
                             }}>
                                 Scroll to explore →
                             </p>
@@ -189,13 +203,13 @@ export default function Technical({ data, bg }: TechnicalProps) {
                             style={{
                                 width: '100vw',
                                 height: '100%',
+                                flexShrink: 0,
                                 display: 'flex',
                                 flexDirection: 'column',
                                 justifyContent: 'center',
                                 alignItems: 'center',
                                 position: 'relative',
                                 padding: '0 clamp(2rem, 8vw, 8rem)',
-                                flexShrink: 0,
                             }}
                         >
                             {/* Ghost number */}
