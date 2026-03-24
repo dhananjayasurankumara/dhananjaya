@@ -245,8 +245,6 @@ function LoginScreen({ username, password, setUsername, setPassword, onSubmit, l
 ══════════════════════════════════════════════════════════════════════════════ */
 function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void }) {
     const [stats, setStats] = useState<Record<string, number>>({});
-    const [seeding, setSeeding] = useState(false);
-    const [seedMsg, setSeedMsg] = useState('');
 
     const fetchStats = useCallback(() => {
         Promise.all([
@@ -273,25 +271,6 @@ function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void }) {
     useEffect(() => {
         fetchStats();
     }, [fetchStats]);
-
-    async function handleSeed() {
-        if (!confirm('This will populate empty database tables with default site data. Continue?')) return;
-        setSeeding(true);
-        try {
-            const res = await fetch('/api/admin/seed', { method: 'POST' });
-            if (res.ok) {
-                setSeedMsg('Database synced successfully!');
-                fetchStats();
-            } else {
-                setSeedMsg('Sync failed.');
-            }
-        } catch (e) {
-            setSeedMsg('Error syncing database.');
-        } finally {
-            setSeeding(false);
-            setTimeout(() => setSeedMsg(''), 3000);
-        }
-    }
 
     const statCards = [
         { label: 'Products',  key: 'products',  tab: 'shop',      color: '#818cf8' },
@@ -326,22 +305,7 @@ function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void }) {
         <div>
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1rem' }}>
                 <PageHeader title="Dashboard" subtitle={`Welcome back, OHansani · ${new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}`} />
-                <button 
-                    onClick={handleSeed} 
-                    disabled={seeding}
-                    style={{ 
-                        ...S.btn, 
-                        fontSize: '0.6rem', 
-                        padding: '0.6rem 1rem', 
-                        background: seeding ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
-                        borderColor: 'rgba(255,255,255,0.15)'
-                    }}
-                >
-                    {seeding ? 'Syncing...' : 'Sync Default Data'}
-                </button>
             </div>
-
-            {seedMsg && <div style={{ padding: '0.75rem', background: 'rgba(52, 211, 153, 0.1)', border: '1px solid rgba(52, 211, 153, 0.2)', borderRadius: '8px', color: '#34d399', fontSize: '0.7rem', marginBottom: '1.5rem' }}>{seedMsg}</div>}
 
             {/* All-section stats */}
             <div style={{ fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: '0.75rem' }}>Site Overview</div>

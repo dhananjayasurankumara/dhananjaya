@@ -1,21 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { db } from './index';
 import {
     presenceLinks, technicalSkills, projects,
     heroContent, aboutContent, philosophyContent, siteSettings
-} from '@/lib/db/schema';
-import { getSession } from '@/lib/session';
+} from './schema';
 
-async function isAdmin() {
-    const session = await getSession();
-    return session.isLoggedIn && session.role === 'admin';
-}
-
-export async function POST(req: NextRequest) {
-    if (!await isAdmin()) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
+export async function ensureDefaults() {
     try {
         // 1. Presence Links
         const existingPresence = await db.select().from(presenceLinks);
@@ -136,10 +125,7 @@ export async function POST(req: NextRequest) {
                 themeColor: '#ff3333'
             });
         }
-
-        return NextResponse.json({ success: true, message: 'Database seeded with defaults' });
-
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        console.error('Error ensuring defaults:', error);
     }
 }

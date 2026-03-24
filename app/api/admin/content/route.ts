@@ -6,6 +6,7 @@ import {
 } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { getSession } from '@/lib/session';
+import { ensureDefaults } from '@/lib/db/seed';
 
 async function requireAdmin(req: NextRequest) {
     const session = await getSession();
@@ -29,6 +30,10 @@ const tableMap: Record<string, any> = {
 export async function GET(req: NextRequest) {
     const err = await requireAdmin(req);
     if (err) return err;
+
+    // Automate seeding if empty
+    await ensureDefaults();
+
     const { searchParams } = new URL(req.url);
     const section = searchParams.get('section');
 
