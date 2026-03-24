@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -28,18 +28,21 @@ export default function Technical({ data, bg }: TechnicalProps) {
     const stickyRef = useRef<HTMLDivElement>(null);  // sticky viewport
     const sectionRef = useRef<HTMLDivElement>(null); // horizontal strip
 
-    const rawTech = (data && data.length > 0) ? data : defaultTech;
-    // Deduplicate by name (case-insensitive) to remove DB duplicates
-    const seen = new Set<string>();
-    const technologies = rawTech.filter(t => {
-        const key = t.name?.toLowerCase();
-        if (!key || seen.has(key)) return false;
-        seen.add(key);
-        return true;
-    });
+    // Merge default skills with DB skills and deduplicate by name
+    const technologies = useMemo(() => {
+        const combined = [...defaultTech, ...(data || [])];
+        const seen = new Set<string>();
+        return combined.filter(t => {
+            const key = t.name?.toLowerCase();
+            if (!key || seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
+    }, [data]);
 
     useEffect(() => {
         gsap.registerPlugin(ScrollTrigger);
+        ScrollTrigger.refresh(); // Ensure accurate calculations after data update
 
         const outer = outerRef.current;
         const sticky = stickyRef.current;

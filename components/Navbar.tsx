@@ -42,7 +42,9 @@ export default function Navbar({ data }: NavbarProps) {
             .then(r => r.ok ? r.json() : [])
             .then(d => {
                 const links = Array.isArray(d) ? d : [];
-                setNavLinks(links.sort((a: any, b: any) => (a.displayOrder || 0) - (b.displayOrder || 0)));
+                // Filter out any "Login" link from DB to avoid dual login buttons
+                const filtered = links.filter((l: any) => l.label?.toLowerCase() !== 'login');
+                setNavLinks(filtered.sort((a: any, b: any) => (a.displayOrder || 0) - (b.displayOrder || 0)));
             });
 
         return () => window.removeEventListener('scroll', handleScroll);
