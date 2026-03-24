@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { portfolioUsers } from '@/lib/db/schema';
-import { eq, or } from 'drizzle-orm';
+import { eq, or, sql } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 import { getSession } from '@/lib/session';
 
@@ -13,16 +13,18 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Identification and password are required' }, { status: 400 });
         }
 
-        // Find by email OR name
+        // Find by email OR name (case-insensitive for both)
+        const identification = email.trim();
         const [user] = await db.select().from(portfolioUsers)
             .where(
                 or(
-                    eq(portfolioUsers.email, email.toLowerCase()),
-                    eq(portfolioUsers.name, email)
+                    eq(portfolioUsers.email, identification.toLowerCase()),
+                    sql`LOWER(${portfolioUsers.name}) = ${identification.toLowerCase()}`
                 )
             ).limit(1);
 
         if (!user) {
+            console.log('Login failed: Identification not found', identification);
             return NextResponse.json({ error: 'Invalid identification or password' }, { status: 401 });
         }
 
