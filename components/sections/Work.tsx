@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Image from 'next/image';
+import Link from 'next/link';
 
 interface Project {
     id?: number;
@@ -243,6 +244,57 @@ export default function Work({ data, bg }: WorkProps) {
                     </div>
                 </div>
             ))}
+
+            {/* ── Show All Works CTA ── */}
+            <div style={{
+                padding: 'clamp(4rem, 8vh, 6rem) var(--gutter)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '2rem',
+                position: 'relative',
+                zIndex: 1,
+                borderTop: '1px solid rgba(255,255,255,0.05)',
+            }}>
+                <span style={{
+                    fontSize: 'clamp(0.6rem, 1vw, 0.7rem)',
+                    letterSpacing: '0.5em',
+                    textTransform: 'uppercase',
+                    color: 'rgba(255,255,255,0.3)',
+                }}>
+                    There&apos;s more
+                </span>
+                <Link
+                    href="/projects"
+                    style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '1rem',
+                        padding: '1.2rem 3.5rem',
+                        border: '1px solid rgba(255,255,255,0.18)',
+                        borderRadius: '4rem',
+                        fontSize: 'clamp(0.7rem, 1.1vw, 0.85rem)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.25em',
+                        color: '#fff',
+                        textDecoration: 'none',
+                        transition: 'all 0.3s ease',
+                        background: 'rgba(255,255,255,0.03)',
+                    }}
+                    onMouseEnter={e => {
+                        (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.08)';
+                        (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(255,255,255,0.35)';
+                    }}
+                    onMouseLeave={e => {
+                        (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.03)';
+                        (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(255,255,255,0.18)';
+                    }}
+                >
+                    Show All Works
+                    <span style={{ fontSize: '1rem', opacity: 0.7 }}>→</span>
+                </Link>
+            </div>
 
         </section>
     );
