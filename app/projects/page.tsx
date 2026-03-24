@@ -147,16 +147,8 @@ export default function ProjectsPage() {
                     }}>
                         <div style={{ fontSize: '2rem', marginBottom: '1rem', opacity: 0.4 }}>🗂</div>
                         <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.85rem', letterSpacing: '0.1em' }}>
-                            {filter !== 'All' ? `No projects tagged "${filter}"` : 'No projects added yet — add them from the admin panel.'}
+                            {filter !== 'All' ? `No projects tagged "${filter}"` : 'No projects yet. Check back soon.'}
                         </p>
-                        <Link href="/admin" style={{
-                            display: 'inline-block', marginTop: '1.5rem',
-                            padding: '0.65rem 1.5rem', border: '1px solid rgba(255,255,255,0.12)',
-                            borderRadius: '8px', color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem',
-                            letterSpacing: '0.15em', textTransform: 'uppercase', textDecoration: 'none',
-                        }}>
-                            → Open Admin Panel
-                        </Link>
                     </div>
                 )}
 
