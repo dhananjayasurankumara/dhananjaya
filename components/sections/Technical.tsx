@@ -1,8 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useMemo } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 const defaultTech = [
     { name: 'JavaScript', type: 'Language' },
@@ -10,7 +8,7 @@ const defaultTech = [
     { name: 'React', type: 'Framework' },
     { name: 'Next.js', type: 'Framework' },
     { name: 'GSAP', type: 'Motion' },
-    { name: 'Three.js', type: '3D/WebGL' },
+    { name: 'Three.js', type: '3D / WebGL' },
     { name: 'Tailwind CSS', type: 'CSS' },
     { name: 'Figma', type: 'Design' },
     { name: 'Photoshop', type: 'Design' },
@@ -24,11 +22,9 @@ interface TechnicalProps {
 }
 
 export default function Technical({ data, bg }: TechnicalProps) {
-    const outerRef = useRef<HTMLDivElement>(null);
-    const stickyRef = useRef<HTMLDivElement>(null);
     const sectionRef = useRef<HTMLDivElement>(null);
+    const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-    // Use DB skills if populated, otherwise use defaults. Deduplicate by name.
     const technologies = useMemo(() => {
         const source = (data && data.length > 0) ? data : defaultTech;
         const seen = new Set<string>();
@@ -40,227 +36,199 @@ export default function Technical({ data, bg }: TechnicalProps) {
         });
     }, [data]);
 
+    // Staggered reveal with IntersectionObserver — no GSAP, no scroll bugs
     useEffect(() => {
-        gsap.registerPlugin(ScrollTrigger);
+        const items = itemRefs.current.filter(Boolean) as HTMLDivElement[];
+        if (!items.length) return;
 
-        const outer = outerRef.current;
-        const sticky = stickyRef.current;
-        const section = sectionRef.current;
-        if (!outer || !sticky || !section) return;
-
-        let ctx: gsap.Context;
-
-        // Double rAF ensures the browser has fully laid out the horizontal strip
-        // before we measure scrollWidth — this is why the scroll was starting mid-way.
-        const raf1 = requestAnimationFrame(() => {
-            const raf2 = requestAnimationFrame(() => {
-                const computeHeight = () => {
-                    const totalScroll = section.scrollWidth - window.innerWidth;
-                    outer.style.height = `${Math.max(totalScroll, 0) + window.innerHeight}px`;
-                };
-
-                // Set height FIRST, then create the ScrollTrigger
-                computeHeight();
-
-                ctx = gsap.context(() => {
-                    gsap.to(section, {
-                        x: () => -(section.scrollWidth - window.innerWidth),
-                        ease: 'none',
-                        scrollTrigger: {
-                            trigger: outer,
-                            start: 'top top',
-                            end: 'bottom bottom',
-                            scrub: 1,
-                            invalidateOnRefresh: true,
-                            onRefresh: computeHeight,
-                        },
-                    });
-                }, outer);
-            });
+        // Start hidden
+        items.forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(40px)';
+            el.style.transition = 'none';
         });
 
-        const handleResize = () => ScrollTrigger.refresh();
-        window.addEventListener('resize', handleResize);
+        const observer = new IntersectionObserver(
+            entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const el = entry.target as HTMLDivElement;
+                        const i = items.indexOf(el);
+                        setTimeout(() => {
+                            el.style.transition = 'opacity 0.7s ease, transform 0.7s ease';
+                            el.style.opacity = '1';
+                            el.style.transform = 'translateY(0)';
+                        }, i * 60);
+                        observer.unobserve(el);
+                    }
+                });
+            },
+            { threshold: 0.1, rootMargin: '0px 0px -60px 0px' }
+        );
 
-        return () => {
-            cancelAnimationFrame(raf1);
-            ctx?.revert();
-            window.removeEventListener('resize', handleResize);
-        };
+        items.forEach(el => observer.observe(el));
+        return () => observer.disconnect();
     }, [technologies]);
 
-    // Pre-calculate a rough initial height so the page layout
-    // reserves enough space before JS runs (avoids layout shift)
-    const estimatedSlides = technologies.length + 1; // +1 for intro slide
-    const initialHeight = `${estimatedSlides * 100}vw`;
+    const overlayOpacity = bg?.overlayOpacity ?? 0.92;
 
     return (
-        <div
+        <section
             id="tech"
-            ref={outerRef}
+            ref={sectionRef}
             style={{
-                height: initialHeight,
                 background: 'var(--deep-black)',
                 position: 'relative',
+                padding: 'clamp(6rem, 14vh, 10rem) clamp(2rem, 8vw, 8rem)',
+                minHeight: '100vh',
                 zIndex: 1,
+                overflow: 'hidden',
             }}
         >
-            {/* CSS sticky keeps the viewport locked while outer scrolls */}
-            <div
-                ref={stickyRef}
-                style={{
-                    position: 'sticky',
-                    top: 0,
-                    height: '100vh',
-                    width: '100%',
-                    overflow: 'hidden',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}
-            >
-                {/* Dynamic Background */}
-                {bg?.imageUrl && (
-                    <div style={{
-                        position: 'absolute', inset: 0,
-                        backgroundImage: `url("${bg.imageUrl}")`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: bg.imagePosition || 'center',
-                        opacity: 0.08,
-                        zIndex: 0, pointerEvents: 'none',
-                    }} />
-                )}
-
-                {/* Overlay */}
+            {/* Background image */}
+            {bg?.imageUrl && (
                 <div style={{
                     position: 'absolute', inset: 0,
-                    background: `rgba(0,0,0,${bg?.overlayOpacity ?? 0.92})`,
+                    backgroundImage: `url("${bg.imageUrl}")`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: bg.imagePosition || 'center',
+                    opacity: 0.07,
                     zIndex: 0, pointerEvents: 'none',
                 }} />
+            )}
 
-                {/* Horizontal strip — GSAP translates this on X axis */}
-                <div
-                    ref={sectionRef}
-                    style={{
-                        height: '100vh',
-                        width: 'max-content',
-                        display: 'flex',
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        willChange: 'transform',
-                        position: 'relative',
-                        zIndex: 1,
-                    }}
-                >
-                    {/* ── Intro Slide ── */}
-                    <div style={{
-                        width: '100vw',
-                        height: '100%',
-                        flexShrink: 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: '0 clamp(2rem, 8vw, 8rem)',
+            {/* Dark overlay */}
+            <div style={{
+                position: 'absolute', inset: 0,
+                background: `rgba(0,0,0,${overlayOpacity})`,
+                zIndex: 0, pointerEvents: 'none',
+            }} />
+
+            {/* Content */}
+            <div style={{ position: 'relative', zIndex: 1, maxWidth: '1400px', margin: '0 auto' }}>
+
+                {/* Header */}
+                <div style={{ marginBottom: 'clamp(3rem, 8vh, 6rem)' }}>
+                    <span style={{
+                        color: 'var(--highlight)',
+                        fontSize: 'clamp(0.6rem, 1vw, 0.75rem)',
+                        letterSpacing: '0.6em',
+                        textTransform: 'uppercase',
+                        display: 'block',
+                        marginBottom: '1.5rem',
+                        opacity: 0.8,
                     }}>
-                        <div style={{ maxWidth: '800px', textAlign: 'center' }}>
-                            <span style={{
-                                color: 'var(--highlight)',
-                                fontSize: 'clamp(0.6rem, 1vw, 0.75rem)',
-                                letterSpacing: '0.6em',
-                                textTransform: 'uppercase',
-                                display: 'block',
-                                marginBottom: '2rem',
-                                opacity: 0.8,
-                            }}>
-                                Expertise &amp; Tools
-                            </span>
-                            <h2 style={{
-                                fontSize: 'clamp(3rem, 10vw, 7.5rem)',
-                                fontWeight: 200,
-                                textTransform: 'uppercase',
-                                lineHeight: 0.9,
-                                letterSpacing: '-0.04em',
-                                margin: 0,
-                            }}>
-                                Technical<br />
-                                <span style={{ fontWeight: 600, color: 'var(--accent-white)' }}>Mastery</span>
-                            </h2>
-                            <p style={{
-                                marginTop: '2rem',
-                                color: 'rgba(255,255,255,0.3)',
-                                fontSize: 'clamp(0.7rem, 1.1vw, 0.85rem)',
-                                letterSpacing: '0.1em',
-                            }}>
-                                Scroll to explore →
-                            </p>
-                        </div>
-                    </div>
+                        Expertise &amp; Tools
+                    </span>
+                    <h2 style={{
+                        fontSize: 'clamp(2.5rem, 8vw, 6rem)',
+                        fontWeight: 200,
+                        textTransform: 'uppercase',
+                        lineHeight: 0.95,
+                        letterSpacing: '-0.03em',
+                        margin: 0,
+                    }}>
+                        Technical<br />
+                        <span style={{ fontWeight: 700, color: 'var(--accent-white)' }}>Mastery</span>
+                    </h2>
+                </div>
 
-                    {/* ── Tech Slides ── */}
-                    {technologies.map((tech, index) => (
+                {/* Skills Grid */}
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(min(280px, 100%), 1fr))',
+                    gap: '1px',
+                    border: '1px solid rgba(255,255,255,0.06)',
+                }}>
+                    {technologies.map((tech, i) => (
                         <div
-                            key={`${tech.name}-${index}`}
+                            key={`${tech.name}-${i}`}
+                            ref={el => { itemRefs.current[i] = el; }}
                             style={{
-                                width: '100vw',
-                                height: '100%',
-                                flexShrink: 0,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                justifyContent: 'center',
-                                alignItems: 'center',
+                                padding: 'clamp(1.5rem, 4vw, 2.5rem)',
+                                borderRight: '1px solid rgba(255,255,255,0.06)',
+                                borderBottom: '1px solid rgba(255,255,255,0.06)',
                                 position: 'relative',
-                                padding: '0 clamp(2rem, 8vw, 8rem)',
+                                cursor: 'default',
+                                transition: 'background 0.3s ease',
+                            }}
+                            onMouseEnter={e => {
+                                (e.currentTarget as HTMLDivElement).style.background = 'rgba(255,255,255,0.03)';
+                            }}
+                            onMouseLeave={e => {
+                                (e.currentTarget as HTMLDivElement).style.background = 'transparent';
                             }}
                         >
-                            {/* Ghost number */}
-                            <div style={{
+                            {/* Index number */}
+                            <span style={{
                                 position: 'absolute',
-                                top: '50%', left: '50%',
-                                transform: 'translate(-50%, -50%)',
-                                fontSize: 'clamp(10rem, 30vw, 22rem)',
-                                fontWeight: 900,
-                                opacity: 0.018,
-                                zIndex: 0,
-                                pointerEvents: 'none',
-                                userSelect: 'none',
-                                lineHeight: 1,
+                                top: 'clamp(1rem, 2vw, 1.5rem)',
+                                right: 'clamp(1rem, 2vw, 1.5rem)',
+                                fontSize: '0.65rem',
+                                color: 'rgba(255,255,255,0.15)',
+                                letterSpacing: '0.1em',
+                                fontWeight: 400,
                             }}>
-                                {String(index + 1).padStart(2, '0')}
-                            </div>
+                                {String(i + 1).padStart(2, '0')}
+                            </span>
 
-                            <div style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
-                                <span style={{
-                                    color: 'var(--highlight)',
-                                    fontSize: 'clamp(0.6rem, 1vw, 0.75rem)',
-                                    marginBottom: '1.2rem',
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.4em',
-                                    display: 'block',
-                                }}>
-                                    {tech.type}
-                                </span>
-                                <h3 style={{
-                                    fontSize: 'clamp(2.5rem, 9vw, 6rem)',
-                                    fontWeight: 200,
-                                    margin: 0,
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.04em',
-                                    lineHeight: 1,
-                                }}>
-                                    {tech.name}
-                                </h3>
-                                <div style={{
-                                    width: 'clamp(40px, 10vw, 60px)',
-                                    height: '1px',
-                                    background: 'var(--highlight)',
-                                    margin: 'clamp(1.5rem, 4vw, 3rem) auto 0',
-                                    boxShadow: '0 0 20px rgba(229,9,20,0.3)',
-                                }} />
-                            </div>
+                            {/* Type badge */}
+                            <span style={{
+                                display: 'inline-block',
+                                fontSize: 'clamp(0.55rem, 0.9vw, 0.65rem)',
+                                letterSpacing: '0.3em',
+                                textTransform: 'uppercase',
+                                color: 'var(--highlight)',
+                                marginBottom: '0.8rem',
+                                opacity: 0.9,
+                            }}>
+                                {tech.type}
+                            </span>
+
+                            {/* Skill name */}
+                            <h3 style={{
+                                fontSize: 'clamp(1.2rem, 3vw, 1.8rem)',
+                                fontWeight: 300,
+                                margin: 0,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.05em',
+                                lineHeight: 1.1,
+                                color: '#fff',
+                            }}>
+                                {tech.name}
+                            </h3>
+
+                            {/* Red accent line */}
+                            <div style={{
+                                marginTop: '1.2rem',
+                                width: '32px',
+                                height: '1px',
+                                background: 'var(--highlight)',
+                                opacity: 0.6,
+                                transition: 'width 0.3s ease, opacity 0.3s ease',
+                            }} />
                         </div>
                     ))}
                 </div>
+
+                {/* Count */}
+                <div style={{
+                    marginTop: '3rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '1rem',
+                }}>
+                    <div style={{ width: '40px', height: '1px', background: 'rgba(255,255,255,0.15)' }} />
+                    <span style={{
+                        fontSize: '0.7rem',
+                        letterSpacing: '0.3em',
+                        textTransform: 'uppercase',
+                        color: 'rgba(255,255,255,0.25)',
+                    }}>
+                        {technologies.length} Technologies
+                    </span>
+                </div>
             </div>
-        </div>
+        </section>
     );
 }
