@@ -74,15 +74,16 @@ function SocialCard({ platform, meta }: {
                 padding: '0 1.5rem', gap: '0.75rem',
                 position: 'relative',
             }}>
-                {/* Platform emoji icon */}
+                {/* Platform initial icon */}
                 <div style={{
                     width: 44, height: 44, borderRadius: '12px',
                     background: `${meta.color}20`,
                     border: `1.5px solid ${meta.color}50`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '1.4rem', flexShrink: 0,
+                    fontSize: '1rem', fontWeight: 700, color: meta.color,
+                    flexShrink: 0, letterSpacing: '-0.02em',
                 }}>
-                    {meta.emoji}
+                    {platform.name.charAt(0)}
                 </div>
                 <div>
                     <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fff' }}>
@@ -349,11 +350,7 @@ export default function Presence({ data, bg }: PresenceProps) {
                                         minWidth: isActive ? 'clamp(7rem, 14vw, 9rem)' : 'clamp(5rem, 9vw, 6.5rem)',
                                     }}
                                 >
-                                    {/* Emoji icon */}
-                                    <span style={{ fontSize: isActive ? '1.4rem' : '1.1rem', transition: 'font-size 0.3s' }}>
-                                        {meta.emoji}
-                                    </span>
-                                    <span style={{
+                                <span style={{
                                         fontSize: isActive ? '0.72rem' : '0.58rem',
                                         fontWeight: isActive ? 700 : 400,
                                         color: '#fff', letterSpacing: '0.06em',
