@@ -1,21 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { portfolioUsers } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, or } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 import { getSession } from '@/lib/session';
 
 export async function POST(req: NextRequest) {
     try {
-        const { email, password } = await req.json();
+        const { email, password } = await req.json(); // 'email' field in UI can be name or email
 
         if (!email || !password) {
-            return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
+            return NextResponse.json({ error: 'Identification and password are required' }, { status: 400 });
         }
 
-        const [user] = await db.select().from(portfolioUsers).where(eq(portfolioUsers.email, email)).limit(1);
+        // Find by email OR name
+        const [user] = await db.select().from(portfolioUsers)
+            .where(
+                or(
+                    eq(portfolioUsers.email, email.toLowerCase()),
+                    eq(portfolioUsers.name, email)
+                )
+            ).limit(1);
+
         if (!user) {
-            return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
+            return NextResponse.json({ error: 'Invalid identification or password' }, { status: 401 });
         }
 
         const isValid = await bcrypt.compare(password, user.passwordHash);
