@@ -32,9 +32,15 @@ const S = {
 const NAV = [
     { id: 'dashboard', icon: '⊞', label: 'Dashboard' },
     { id: 'hero',      icon: '◉', label: 'Hero' },
-    { id: 'content',   icon: '✦', label: 'Content' },
+    { id: 'about',     icon: '👤', label: 'About' },
+    { id: 'philosophy',icon: '💡', label: 'Philosophy' },
+    { id: 'technical', icon: '⚡', label: 'Technical' },
+    { id: 'projects',  icon: '🗂', label: 'Projects' },
+    { id: 'presence',  icon: '🔗', label: 'Presence' },
+    { id: 'support',   icon: '🛟', label: 'Support' },
+    { id: 'reviews',   icon: '⭐', label: 'Reviews' },
     { id: 'shop',      icon: '⬡', label: 'Shop' },
-    { id: 'navlinks',  icon: '🔗', label: 'Nav Links' },
+    { id: 'navlinks',  icon: '🧭', label: 'Nav Links' },
     { id: 'media',     icon: '🖼', label: 'Media / BG' },
     { id: 'users',     icon: '◇', label: 'Users' },
     { id: 'messages',  icon: '✉', label: 'Messages' },
@@ -177,15 +183,21 @@ export default function AdminPage() {
                 {/* Page content */}
                 <main style={{ flex: 1, padding: '2rem', overflowX: 'hidden', maxWidth: '100%' }}>
                     {activeTab === 'dashboard' && <DashboardTab onNavigate={setActiveTab} />}
-                    {activeTab === 'hero'      && <HeroTab />}
-                    {activeTab === 'content'   && <ContentTab />}
-                    {activeTab === 'shop'      && <ShopTab />}
-                    {activeTab === 'navlinks'  && <NavLinksTab />}
-                    {activeTab === 'media'     && <MediaTab />}
-                    {activeTab === 'users'     && <UsersTab />}
-                    {activeTab === 'messages'  && <MessagesTab />}
-                    {activeTab === 'chatbot'   && <ChatbotTab />}
-                    {activeTab === 'settings'  && <SettingsTab />}
+                    {activeTab === 'hero'       && <HeroTab />}
+                    {(activeTab === 'content' || activeTab === 'about') && <AboutTab />}
+                    {activeTab === 'philosophy' && <PhilosophyTab />}
+                    {activeTab === 'technical'  && <TechnicalTab />}
+                    {activeTab === 'projects'   && <ProjectsTab />}
+                    {activeTab === 'presence'   && <PresenceTab />}
+                    {activeTab === 'support'    && <SupportTab />}
+                    {activeTab === 'reviews'    && <ReviewsTab />}
+                    {activeTab === 'shop'       && <ShopTab />}
+                    {activeTab === 'navlinks'   && <NavLinksTab />}
+                    {activeTab === 'media'      && <MediaTab />}
+                    {activeTab === 'users'      && <UsersTab />}
+                    {activeTab === 'messages'   && <MessagesTab />}
+                    {activeTab === 'chatbot'    && <ChatbotTab />}
+                    {activeTab === 'settings'   && <SettingsTab />}
                 </main>
             </div>
         </div>
@@ -1233,6 +1245,319 @@ function ListEditor({ title, fields, items, onAdd, onDelete, saving }: { title: 
             {items.length === 0 && (
                 <div style={{ ...S.card, textAlign: 'center', padding: '2.5rem', color: 'rgba(255,255,255,0.2)', fontSize: '0.75rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                     No items yet
+                </div>
+            )}
+        </div>
+    );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ABOUT TAB
+══════════════════════════════════════════════════════════════════════════════ */
+function AboutTab() {
+    const [data, setData] = useState<any>(null);
+    const [form, setForm] = useState({ title: '', bio: '', stat1Label: '', stat1Value: '', stat2Label: '', stat2Value: '', stat3Label: '', stat3Value: '' });
+    const [saving, setSaving] = useState(false);
+    const [msg, setMsg] = useState('');
+    useEffect(() => {
+        fetch('/api/admin/content').then(r => r.ok ? r.json() : {}).then((d: any) => {
+            if (d.about) { setData(d.about); setForm({ title: d.about.title || '', bio: d.about.bio || '', stat1Label: d.about.stat1Label || '', stat1Value: d.about.stat1Value || '', stat2Label: d.about.stat2Label || '', stat2Value: d.about.stat2Value || '', stat3Label: d.about.stat3Label || '', stat3Value: d.about.stat3Value || '' }); }
+        });
+    }, []);
+    async function save(e: React.FormEvent) {
+        e.preventDefault(); setSaving(true);
+        await fetch('/api/admin/content', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ section: 'aboutContent', id: data?.id, data: form }) });
+        setSaving(false); setMsg('About saved!'); setTimeout(() => setMsg(''), 3000);
+    }
+    return (
+        <div>
+            <PageHeader title="About Section" subtitle="Edit bio, title, and stats" />
+            {msg && <Toast message={msg} />}
+            <form onSubmit={save} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                <div style={S.card}><label style={S.label}>Title / Your Name</label><input style={S.input} value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Dhananjaya Suran Kumara" /></div>
+                <div style={S.card}><label style={S.label}>Bio / Description</label><textarea rows={5} style={{ ...S.input, resize: 'vertical' }} value={form.bio} onChange={e => setForm(f => ({ ...f, bio: e.target.value }))} /></div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem' }}>
+                    {(['stat1', 'stat2', 'stat3'] as const).map(s => (
+                        <div key={s} style={S.card}>
+                            <div style={{ fontSize: '0.6rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: '0.75rem' }}>{s.replace('stat', 'Stat ')}</div>
+                            <label style={S.label}>Label</label>
+                            <input style={{ ...S.input, marginBottom: '0.5rem' }} value={(form as any)[`${s}Label`]} onChange={e => setForm(f => ({ ...f, [`${s}Label`]: e.target.value }))} placeholder="Years Experience" />
+                            <label style={S.label}>Value</label>
+                            <input style={S.input} value={(form as any)[`${s}Value`]} onChange={e => setForm(f => ({ ...f, [`${s}Value`]: e.target.value }))} placeholder="5+" />
+                        </div>
+                    ))}
+                </div>
+                <div><button type="submit" disabled={saving} style={{ ...S.btn, padding: '0.75rem 2rem' }}>{saving ? 'Saving…' : '✓ Save About'}</button></div>
+            </form>
+        </div>
+    );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PHILOSOPHY TAB
+══════════════════════════════════════════════════════════════════════════════ */
+function PhilosophyTab() {
+    const [data, setData] = useState<any>(null);
+    const [form, setForm] = useState({ label: '', line1: '', line2: '', bio: '' });
+    const [saving, setSaving] = useState(false);
+    const [msg, setMsg] = useState('');
+    useEffect(() => {
+        fetch('/api/admin/content').then(r => r.ok ? r.json() : {}).then((d: any) => {
+            if (d.philosophy) { setData(d.philosophy); setForm({ label: d.philosophy.label || '', line1: d.philosophy.line1 || '', line2: d.philosophy.line2 || '', bio: d.philosophy.bio || '' }); }
+        });
+    }, []);
+    async function save(e: React.FormEvent) {
+        e.preventDefault(); setSaving(true);
+        await fetch('/api/admin/content', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ section: 'philosophyContent', id: data?.id, data: form }) });
+        setSaving(false); setMsg('Philosophy saved!'); setTimeout(() => setMsg(''), 3000);
+    }
+    return (
+        <div>
+            <PageHeader title="Philosophy Section" subtitle="Edit your creative philosophy statement" />
+            {msg && <Toast message={msg} />}
+            <form onSubmit={save} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+                    <div style={S.card}><label style={S.label}>Eyebrow Label</label><input style={S.input} value={form.label} onChange={e => setForm(f => ({ ...f, label: e.target.value }))} placeholder="Design Philosophy" /></div>
+                    <div style={S.card}><label style={S.label}>Line 1 (Bold)</label><input style={S.input} value={form.line1} onChange={e => setForm(f => ({ ...f, line1: e.target.value }))} /></div>
+                    <div style={S.card}><label style={S.label}>Line 2 (Light)</label><input style={S.input} value={form.line2} onChange={e => setForm(f => ({ ...f, line2: e.target.value }))} /></div>
+                </div>
+                <div style={S.card}><label style={S.label}>Description Text</label><textarea rows={4} style={{ ...S.input, resize: 'vertical' }} value={form.bio} onChange={e => setForm(f => ({ ...f, bio: e.target.value }))} /></div>
+                <div style={{ ...S.card, background: '#050505', padding: '2.5rem' }}>
+                    <div style={{ fontSize: '0.55rem', letterSpacing: '0.4em', textTransform: 'uppercase', color: 'rgba(229,9,20,0.7)', marginBottom: '0.75rem' }}>{form.label || 'Design Philosophy'}</div>
+                    <div style={{ fontSize: 'clamp(1.5rem,3vw,2.5rem)', fontWeight: 900, textTransform: 'uppercase' }}>{form.line1 || 'Line 1 Preview'}</div>
+                    <div style={{ fontSize: 'clamp(1rem,2vw,1.75rem)', fontWeight: 200, opacity: 0.5, textTransform: 'uppercase' }}>{form.line2 || 'Line 2 Preview'}</div>
+                    <p style={{ marginTop: '1rem', fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', lineHeight: 1.7 }}>{form.bio || 'Description preview…'}</p>
+                    <div style={{ fontSize: '0.5rem', color: 'rgba(255,255,255,0.12)', letterSpacing: '0.3em', textTransform: 'uppercase', marginTop: '1rem' }}>↑ Live Preview ↑</div>
+                </div>
+                <div><button type="submit" disabled={saving} style={{ ...S.btn, padding: '0.75rem 2rem' }}>{saving ? 'Saving…' : '✓ Save Philosophy'}</button></div>
+            </form>
+        </div>
+    );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TECHNICAL TAB
+══════════════════════════════════════════════════════════════════════════════ */
+function TechnicalTab() {
+    const [skills, setSkills] = useState<any[]>([]);
+    const [form, setForm] = useState({ name: '', type: '' });
+    const [saving, setSaving] = useState(false);
+    const [msg, setMsg] = useState('');
+    const load = useCallback(() => { fetch('/api/admin/content').then(r => r.ok ? r.json() : {}).then((d: any) => setSkills(d.skills || [])); }, []);
+    useEffect(() => { load(); }, [load]);
+    async function add(e: React.FormEvent) {
+        e.preventDefault(); if (!form.name.trim()) return; setSaving(true);
+        await fetch('/api/admin/content', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ section: 'technicalSkills', data: form }) });
+        setSaving(false); setForm({ name: '', type: '' }); load(); setMsg('Skill added!'); setTimeout(() => setMsg(''), 2500);
+    }
+    async function del(id: number) {
+        await fetch('/api/admin/content', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ section: 'technicalSkills', id }) });
+        load();
+    }
+    const types = ['Language', 'Framework', 'CSS', 'Design', 'Motion', '3D / WebGL', 'Backend', 'Database', 'DevOps', 'Tool'];
+    return (
+        <div>
+            <PageHeader title="Technical Skills" subtitle={`${skills.length} skills in horizontal scroll strip`} />
+            {msg && <Toast message={msg} />}
+            <form onSubmit={add} style={{ ...S.card, display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+                <div style={{ flex: 2, minWidth: 160 }}><label style={S.label}>Skill Name</label><input style={S.input} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="React" required /></div>
+                <div style={{ flex: 1, minWidth: 140 }}><label style={S.label}>Type</label><select style={S.input} value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))}><option value="">Select type…</option>{types.map(t => <option key={t} value={t}>{t}</option>)}</select></div>
+                <div style={{ display: 'flex', alignItems: 'flex-end' }}><button type="submit" disabled={saving} style={{ ...S.btn, padding: '0.7rem 1.5rem' }}>{saving ? '…' : '+ Add'}</button></div>
+            </form>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem' }}>
+                {skills.map(s => (<div key={s.id} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', padding: '0.45rem 0.9rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '2rem' }}><span style={{ fontSize: '0.65rem', color: 'rgba(229,9,20,0.85)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>{s.type}</span><span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#fff' }}>{s.name}</span><button onClick={() => del(s.id)} style={{ background: 'none', border: 'none', color: 'rgba(255,80,80,0.7)', cursor: 'pointer', fontSize: '0.9rem', lineHeight: 1, padding: 0 }}>×</button></div>))}
+                {skills.length === 0 && <div style={{ ...S.card, width: '100%', textAlign: 'center', padding: '2rem', color: 'rgba(255,255,255,0.2)', fontSize: '0.8rem' }}>No custom skills — defaults shown. Add yours here.</div>}
+            </div>
+        </div>
+    );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PROJECTS TAB
+══════════════════════════════════════════════════════════════════════════════ */
+function ProjectsTab() {
+    const [items, setItems] = useState<any[]>([]);
+    const [form, setForm] = useState({ title: '', description: '', tags: '', link: '', imageUrl: '' });
+    const [editing, setEditing] = useState<any>(null);
+    const [saving, setSaving] = useState(false);
+    const [msg, setMsg] = useState('');
+    const [showForm, setShowForm] = useState(false);
+    const load = useCallback(() => { fetch('/api/admin/content').then(r => r.ok ? r.json() : {}).then((d: any) => setItems(d.projects || [])); }, []);
+    useEffect(() => { load(); }, [load]);
+    function openAdd() { setEditing(null); setForm({ title: '', description: '', tags: '', link: '', imageUrl: '' }); setShowForm(true); }
+    function openEdit(p: any) { setEditing(p); setForm({ title: p.title || '', description: p.description || '', tags: p.tags || '', link: p.link || '', imageUrl: p.imageUrl || '' }); setShowForm(true); }
+    async function save(e: React.FormEvent) {
+        e.preventDefault(); setSaving(true);
+        const method = editing ? 'PUT' : 'POST';
+        const body = editing ? { section: 'projects', id: editing.id, data: form } : { section: 'projects', data: form };
+        await fetch('/api/admin/content', { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        setSaving(false); setShowForm(false); load(); setMsg(editing ? 'Updated!' : 'Added!'); setTimeout(() => setMsg(''), 2500);
+    }
+    async function del(id: number) {
+        if (!confirm('Delete?')) return;
+        await fetch('/api/admin/content', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ section: 'projects', id }) });
+        load();
+    }
+    return (
+        <div>
+            <PageHeader title="Projects / Work" subtitle={`${items.length} project${items.length !== 1 ? 's' : ''} — latest 3 shown on homepage`} action={<button onClick={openAdd} style={{ ...S.btn, padding: '0.6rem 1.25rem' }}>+ Add Project</button>} />
+            {msg && <Toast message={msg} />}
+            {showForm && (
+                <div style={{ ...S.card, marginBottom: '1.5rem' }}>
+                    <div style={{ fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', marginBottom: '1rem' }}>{editing ? 'Edit Project' : 'New Project'}</div>
+                    <form onSubmit={save} style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.9rem' }}>
+                            <div><label style={S.label}>Title *</label><input style={S.input} value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} required /></div>
+                            <div><label style={S.label}>Tags (comma separated)</label><input style={S.input} value={form.tags} onChange={e => setForm(f => ({ ...f, tags: e.target.value }))} placeholder="Branding, Motion" /></div>
+                            <div><label style={S.label}>Link URL</label><input style={S.input} value={form.link} onChange={e => setForm(f => ({ ...f, link: e.target.value }))} /></div>
+                            <div><label style={S.label}>Image URL</label><input style={S.input} value={form.imageUrl} onChange={e => setForm(f => ({ ...f, imageUrl: e.target.value }))} /></div>
+                        </div>
+                        <div><label style={S.label}>Description</label><textarea rows={3} style={{ ...S.input, resize: 'vertical' }} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} /></div>
+                        <div style={{ display: 'flex', gap: '0.75rem' }}><button type="submit" disabled={saving} style={S.btn}>{saving ? 'Saving…' : editing ? '✓ Update' : '+ Add'}</button><button type="button" onClick={() => setShowForm(false)} style={{ ...S.btn, opacity: 0.4 }}>Cancel</button></div>
+                    </form>
+                </div>
+            )}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1rem' }}>
+                {items.map(p => (
+                    <div key={p.id} style={S.card}>
+                        {p.imageUrl && <div style={{ height: 130, borderRadius: '8px', background: `url(${p.imageUrl}) center/cover`, marginBottom: '0.9rem' }} />}
+                        <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#fff', marginBottom: '0.25rem' }}>{p.title}</div>
+                        <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.35)', marginBottom: '0.65rem', lineHeight: 1.5 }}>{p.description}</div>
+                        {p.tags && <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem', marginBottom: '0.65rem' }}>{String(p.tags).split(',').map((t: string) => <span key={t} style={{ fontSize: '0.55rem', padding: '0.15rem 0.45rem', background: 'rgba(229,9,20,0.09)', border: '1px solid rgba(229,9,20,0.2)', borderRadius: '20px', color: 'rgba(229,9,20,0.8)' }}>{t.trim()}</span>)}</div>}
+                        <div style={{ display: 'flex', gap: '0.5rem' }}><button onClick={() => openEdit(p)} style={{ ...S.btn, flex: 1 }}>✏ Edit</button><button onClick={() => del(p.id)} style={S.danger}>Delete</button></div>
+                    </div>
+                ))}
+                {items.length === 0 && <div style={{ ...S.card, gridColumn: '1/-1', textAlign: 'center', padding: '3rem', color: 'rgba(255,255,255,0.2)', fontSize: '0.8rem' }}>No projects — click + Add Project to start</div>}
+            </div>
+        </div>
+    );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PRESENCE TAB
+══════════════════════════════════════════════════════════════════════════════ */
+function PresenceTab() {
+    const [items, setItems] = useState<any[]>([]);
+    const [form, setForm] = useState({ name: '', platformId: '', url: '', tagline: '', color: '#ffffff' });
+    const [saving, setSaving] = useState(false);
+    const [msg, setMsg] = useState('');
+    const [showForm, setShowForm] = useState(false);
+    const load = useCallback(() => { fetch('/api/admin/content').then(r => r.ok ? r.json() : {}).then((d: any) => setItems(d.presence || [])); }, []);
+    useEffect(() => { load(); }, [load]);
+    async function add(e: React.FormEvent) {
+        e.preventDefault(); setSaving(true);
+        await fetch('/api/admin/content', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ section: 'presenceLinks', data: form }) });
+        setSaving(false); setShowForm(false); setForm({ name: '', platformId: '', url: '', tagline: '', color: '#ffffff' }); load(); setMsg('Added!'); setTimeout(() => setMsg(''), 2000);
+    }
+    async function del(id: number) {
+        await fetch('/api/admin/content', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ section: 'presenceLinks', id }) });
+        load();
+    }
+    const suggestions = ['instagram', 'behance', 'dribbble', 'tiktok', 'youtube', 'linkedin', 'github', 'facebook', 'x', 'telegram', 'whatsapp', 'fiverr', 'upwork', 'pph'];
+    return (
+        <div>
+            <PageHeader title="Presence / Platforms" subtitle={`${items.length} custom platform${items.length !== 1 ? 's' : ''} (14 defaults when empty)`} action={<button onClick={() => setShowForm(s => !s)} style={{ ...S.btn, padding: '0.6rem 1.25rem' }}>+ Add Platform</button>} />
+            {msg && <Toast message={msg} />}
+            {showForm && (
+                <form onSubmit={add} style={{ ...S.card, display: 'flex', flexDirection: 'column', gap: '0.9rem', marginBottom: '1.5rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px,1fr))', gap: '0.75rem' }}>
+                        <div><label style={S.label}>Name *</label><input style={S.input} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Instagram" required /></div>
+                        <div><label style={S.label}>Platform ID</label><select style={S.input} value={form.platformId} onChange={e => setForm(f => ({ ...f, platformId: e.target.value }))}><option value="">Select…</option>{suggestions.map(s => <option key={s} value={s}>{s}</option>)}</select></div>
+                        <div><label style={S.label}>URL</label><input style={S.input} value={form.url} onChange={e => setForm(f => ({ ...f, url: e.target.value }))} /></div>
+                        <div><label style={S.label}>Tagline</label><input style={S.input} value={form.tagline} onChange={e => setForm(f => ({ ...f, tagline: e.target.value }))} /></div>
+                        <div><label style={S.label}>Color</label><input type="color" style={{ ...S.input, padding: '0.25rem', height: '2.4rem', cursor: 'pointer' }} value={form.color} onChange={e => setForm(f => ({ ...f, color: e.target.value }))} /></div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.75rem' }}><button type="submit" disabled={saving} style={S.btn}>{saving ? '…' : '+ Add'}</button><button type="button" onClick={() => setShowForm(false)} style={{ ...S.btn, opacity: 0.4 }}>Cancel</button></div>
+                </form>
+            )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                {items.map(p => (<div key={p.id} style={{ ...S.card, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}><div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}><div style={{ width: 10, height: 10, borderRadius: '50%', background: p.color || '#fff', flexShrink: 0 }} /><div><div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#fff' }}>{p.name}</div><div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.3)' }}>{p.tagline} · {p.url}</div></div></div><button onClick={() => del(p.id)} style={{ ...S.danger, flexShrink: 0 }}>Delete</button></div>))}
+                {items.length === 0 && <div style={{ ...S.card, textAlign: 'center', padding: '2rem', color: 'rgba(255,255,255,0.2)', fontSize: '0.8rem' }}>Empty — 14 default platforms shown on site</div>}
+            </div>
+        </div>
+    );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SUPPORT TAB
+══════════════════════════════════════════════════════════════════════════════ */
+function SupportTab() {
+    const [items, setItems] = useState<any[]>([]);
+    const [form, setForm] = useState({ title: '', description: '', url: '', icon: '' });
+    const [saving, setSaving] = useState(false);
+    const [msg, setMsg] = useState('');
+    const [showForm, setShowForm] = useState(false);
+    const load = useCallback(() => { fetch('/api/admin/content').then(r => r.ok ? r.json() : {}).then((d: any) => setItems(d.support || [])); }, []);
+    useEffect(() => { load(); }, [load]);
+    async function add(e: React.FormEvent) {
+        e.preventDefault(); setSaving(true);
+        await fetch('/api/admin/content', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ section: 'supportItems', data: form }) });
+        setSaving(false); setShowForm(false); setForm({ title: '', description: '', url: '', icon: '' }); load(); setMsg('Added!'); setTimeout(() => setMsg(''), 2000);
+    }
+    async function del(id: number) {
+        await fetch('/api/admin/content', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ section: 'supportItems', id }) });
+        load();
+    }
+    return (
+        <div>
+            <PageHeader title="Support Items" subtitle="Manage support / donation links on the site" action={<button onClick={() => setShowForm(s => !s)} style={{ ...S.btn, padding: '0.6rem 1.25rem' }}>+ Add Item</button>} />
+            {msg && <Toast message={msg} />}
+            {showForm && (
+                <form onSubmit={add} style={{ ...S.card, display: 'flex', flexDirection: 'column', gap: '0.9rem', marginBottom: '1.5rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px,1fr))', gap: '0.75rem' }}>
+                        <div><label style={S.label}>Title *</label><input style={S.input} value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Buy Me a Coffee" required /></div>
+                        <div><label style={S.label}>URL</label><input style={S.input} value={form.url} onChange={e => setForm(f => ({ ...f, url: e.target.value }))} /></div>
+                        <div><label style={S.label}>Icon (emoji)</label><input style={S.input} value={form.icon} onChange={e => setForm(f => ({ ...f, icon: e.target.value }))} placeholder="☕" /></div>
+                        <div><label style={S.label}>Description</label><input style={S.input} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} /></div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.75rem' }}><button type="submit" disabled={saving} style={S.btn}>{saving ? '…' : '+ Add'}</button><button type="button" onClick={() => setShowForm(false)} style={{ ...S.btn, opacity: 0.4 }}>Cancel</button></div>
+                </form>
+            )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                {items.map(p => (<div key={p.id} style={{ ...S.card, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}><div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}><span style={{ fontSize: '1.4rem' }}>{p.icon || '⭐'}</span><div><div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#fff' }}>{p.title}</div><div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.3)' }}>{p.description} · <a href={p.url} target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(229,9,20,0.7)' }}>{p.url}</a></div></div></div><button onClick={() => del(p.id)} style={{ ...S.danger, flexShrink: 0 }}>Delete</button></div>))}
+                {items.length === 0 && <div style={{ ...S.card, textAlign: 'center', padding: '2rem', color: 'rgba(255,255,255,0.2)', fontSize: '0.8rem' }}>Empty — defaults (Coffee / Pizza) shown on site</div>}
+            </div>
+        </div>
+    );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   REVIEWS TAB
+══════════════════════════════════════════════════════════════════════════════ */
+function ReviewsTab() {
+    const [reviewList, setReviewList] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [msg, setMsg] = useState('');
+    const load = useCallback(() => { setLoading(true); fetch('/api/admin/reviews').then(r => r.ok ? r.json() : []).then(d => { setReviewList(d); setLoading(false); }); }, []);
+    useEffect(() => { load(); }, [load]);
+    async function del(id: number) {
+        if (!confirm('Delete?')) return;
+        await fetch('/api/admin/reviews', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+        load(); setMsg('Deleted!'); setTimeout(() => setMsg(''), 2000);
+    }
+    const avg = reviewList.length ? (reviewList.reduce((s: number, r: any) => s + r.rating, 0) / reviewList.length).toFixed(1) : '—';
+    const stars = (n: number) => Array.from({ length: 5 }, (_, i) => <span key={i} style={{ color: i < n ? '#FFD700' : 'rgba(255,255,255,0.15)', fontSize: 13 }}>★</span>);
+    return (
+        <div>
+            <PageHeader title="Reviews" subtitle={`${reviewList.length} review${reviewList.length !== 1 ? 's' : ''} · Average ${avg} ★`} />
+            {msg && <Toast message={msg} />}
+            {loading ? (<div style={{ ...S.card, textAlign: 'center', padding: '3rem', color: 'rgba(255,255,255,0.25)' }}>Loading…</div>)
+            : reviewList.length === 0 ? (<div style={{ ...S.card, textAlign: 'center', padding: '3rem', color: 'rgba(255,255,255,0.25)', fontSize: '0.8rem' }}>No reviews yet</div>)
+            : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    {reviewList.map((r: any) => (
+                        <div key={r.id} style={{ ...S.card, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                                    <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 700 }}>{r.userName?.charAt(0).toUpperCase()}</div>
+                                    <div><div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#fff' }}>{r.userName}</div><div style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.3)' }}>{new Date(r.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div></div>
+                                    <div style={{ display: 'flex', gap: '1px' }}>{stars(r.rating)}</div>
+                                </div>
+                                <p style={{ fontSize: '0.825rem', color: 'rgba(255,255,255,0.55)', lineHeight: 1.6, fontStyle: 'italic', margin: 0 }}>"{r.body}"</p>
+                            </div>
+                            <button onClick={() => del(r.id)} style={{ ...S.danger, flexShrink: 0 }}>Delete</button>
+                        </div>
+                    ))}
                 </div>
             )}
         </div>
