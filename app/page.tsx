@@ -5,6 +5,7 @@ import Work from "@/components/sections/Work";
 import Philosophy from "@/components/sections/Philosophy";
 import Presence from "@/components/sections/Presence";
 import Support from "@/components/sections/Support";
+import Reviews from "@/components/sections/Reviews";
 import Contact from "@/components/sections/Contact";
 export const dynamic = 'force-dynamic';
 import { db } from "@/lib/db";
@@ -61,6 +62,7 @@ export default async function Home() {
             <Work data={projectsData as any} bg={getBg('work')} />
             <Presence data={presenceData as any} bg={getBg('presence')} />
             <Support data={supportData as any} bg={getBg('support')} />
+            <Reviews />
             <Contact data={nn(settingsData)} bg={getBg('contact')} />
         </>
     );

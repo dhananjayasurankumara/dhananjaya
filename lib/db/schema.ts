@@ -114,6 +114,19 @@ export const supportItems = pgTable('support_items', {
     updatedAt: timestamp('updated_at').defaultNow(),
 });
 
+// ─── Reviews ──────────────────────────────────────────────────────────────────
+export const reviews = pgTable('reviews', {
+    id: serial('id').primaryKey(),
+    userId: integer('user_id').notNull().unique(),
+    userName: text('user_name').notNull(),
+    userAvatar: text('user_avatar'),
+    rating: integer('rating').notNull().default(5),
+    body: text('body').notNull(),
+    createdAt: timestamp('created_at').defaultNow(),
+    updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+
 // ─── Contacts ─────────────────────────────────────────────────────────────────
 export const contacts = pgTable('contacts', {
     id: serial('id').primaryKey(),
