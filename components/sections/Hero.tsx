@@ -199,37 +199,70 @@ export default function Hero({ data, bg }: HeroProps) {
                 </motion.div>
             </div>
 
-            {/* Scroll indicator */}
+            {/* ── Scroll indicator ── */}
             <motion.div
                 variants={scrollVariants}
                 initial="hidden"
                 animate="visible"
                 style={{
                     position: 'absolute',
-                    bottom: 'var(--spacing-lg)',
+                    bottom: 'clamp(1.5rem, 4vh, 3rem)',
                     left: '50%',
                     transform: 'translateX(-50%)',
                     zIndex: 10,
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    gap: '0.6rem',
+                    gap: '0.5rem',
+                    textAlign: 'center',
                 }}
             >
-                {/* Animated line */}
+                {/* Bouncing pill */}
                 <motion.div
-                    animate={{ scaleY: [1, 0.3, 1] }}
-                    transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-                    style={{ width: '1px', height: '40px', background: 'rgba(255,255,255,0.2)', transformOrigin: 'top' }}
-                />
-                <span style={{
-                    color: 'rgba(255,255,255,0.3)',
-                    fontSize: '0.55rem',
-                    letterSpacing: '0.45em',
-                    textTransform: 'uppercase',
-                }}>
-                    Scroll
-                </span>
+                    animate={{ y: [0, 10, 0] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                    }}
+                >
+                    {/* Scroll track */}
+                    <div style={{
+                        width: 24, height: 40,
+                        border: '1.5px solid rgba(255,255,255,0.2)',
+                        borderRadius: '20px',
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        justifyContent: 'center',
+                        padding: '5px',
+                        boxSizing: 'border-box',
+                    }}>
+                        {/* Scrolling dot */}
+                        <motion.div
+                            animate={{ y: [0, 14, 0], opacity: [1, 0.2, 1] }}
+                            transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+                            style={{
+                                width: 5, height: 5,
+                                borderRadius: '50%',
+                                background: 'rgba(255,255,255,0.55)',
+                            }}
+                        />
+                    </div>
+
+                    {/* Label */}
+                    <span style={{
+                        color: 'rgba(255,255,255,0.3)',
+                        fontSize: '0.5rem',
+                        letterSpacing: '0.45em',
+                        textTransform: 'uppercase',
+                        textAlign: 'center',
+                        display: 'block',
+                    }}>
+                        Scroll
+                    </span>
+                </motion.div>
             </motion.div>
         </section>
     );
