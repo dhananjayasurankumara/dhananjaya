@@ -12,9 +12,9 @@ async function isAdmin() {
 }
 
 export async function POST(req: NextRequest) {
-    // if (!await isAdmin()) {
-    //     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    // }
+    if (!await isAdmin()) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     try {
         // 1. Presence Links
