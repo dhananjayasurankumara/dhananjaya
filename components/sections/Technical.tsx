@@ -11,7 +11,7 @@ const defaultTech = [
     { name: 'Next.js', type: 'Framework' },
     { name: 'GSAP', type: 'Motion' },
     { name: 'Three.js', type: '3D/WebGL' },
-    { name: 'Tailwind', type: 'CSS' },
+    { name: 'Tailwind CSS', type: 'CSS' },
     { name: 'Figma', type: 'Design' },
     { name: 'Photoshop', type: 'Design' },
     { name: 'After Effects', type: 'Motion' },
@@ -24,16 +24,17 @@ interface TechnicalProps {
 }
 
 export default function Technical({ data, bg }: TechnicalProps) {
-    const outerRef = useRef<HTMLDivElement>(null);   // tall outer container
-    const stickyRef = useRef<HTMLDivElement>(null);  // sticky viewport
-    const sectionRef = useRef<HTMLDivElement>(null); // horizontal strip
+    const outerRef = useRef<HTMLDivElement>(null);
+    const stickyRef = useRef<HTMLDivElement>(null);
+    const sectionRef = useRef<HTMLDivElement>(null);
 
-    // Merge default skills with DB skills and deduplicate by name
+    // Only show DB skills if they exist; otherwise fall back to defaults.
+    // Deduplicate by name (case-insensitive).
     const technologies = useMemo(() => {
-        const combined = [...defaultTech, ...(data || [])];
+        const source = (data && data.length > 0) ? data : defaultTech;
         const seen = new Set<string>();
-        return combined.filter(t => {
-            const key = t.name?.toLowerCase();
+        return source.filter(t => {
+            const key = t.name?.trim().toLowerCase();
             if (!key || seen.has(key)) return false;
             seen.add(key);
             return true;
@@ -42,23 +43,22 @@ export default function Technical({ data, bg }: TechnicalProps) {
 
     useEffect(() => {
         gsap.registerPlugin(ScrollTrigger);
-        ScrollTrigger.refresh(); // Ensure accurate calculations after data update
 
         const outer = outerRef.current;
         const sticky = stickyRef.current;
         const section = sectionRef.current;
         if (!outer || !sticky || !section) return;
 
-        // Set outer height = total horizontal scroll distance + 1 viewport height
-        const setHeight = () => {
-            const totalWidth = section.scrollWidth - window.innerWidth;
-            outer.style.height = `${totalWidth + window.innerHeight}px`;
+        // Dynamically calculate the scroll height based on actual content width
+        const computeHeight = () => {
+            const totalScroll = section.scrollWidth - window.innerWidth;
+            outer.style.height = `${Math.max(totalScroll, 0) + window.innerHeight}px`;
         };
-        setHeight();
+
+        // Small delay to let the DOM fully paint before measuring
+        const timer = setTimeout(computeHeight, 100);
 
         const ctx = gsap.context(() => {
-            // Translate the strip horizontally as the user scrolls vertically.
-            // No pin:true — we use CSS sticky instead, so GSAP never moves the DOM.
             gsap.to(section, {
                 x: () => -(section.scrollWidth - window.innerWidth),
                 ease: 'none',
@@ -66,32 +66,35 @@ export default function Technical({ data, bg }: TechnicalProps) {
                     trigger: outer,
                     start: 'top top',
                     end: 'bottom bottom',
-                    scrub: 0.5,
+                    scrub: 1,
                     invalidateOnRefresh: true,
+                    onRefresh: computeHeight,
                 },
             });
-        });
+        }, outer);
 
-        window.addEventListener('resize', setHeight);
+        window.addEventListener('resize', computeHeight);
+
         return () => {
+            clearTimeout(timer);
             ctx.revert();
-            window.removeEventListener('resize', setHeight);
+            window.removeEventListener('resize', computeHeight);
         };
     }, [technologies]);
 
     return (
-        // Tall outer container creates the scroll distance
         <div
             id="tech"
             ref={outerRef}
             style={{
-                height: '500vh',
                 background: 'var(--deep-black)',
                 position: 'relative',
-                zIndex: 1
+                zIndex: 1,
+                // Height is set dynamically in useEffect; 100vh is just a fallback
+                height: '100vh',
             }}
         >
-            {/* CSS sticky keeps the viewport in place while outer scrolls */}
+            {/* CSS sticky keeps the viewport locked while the outer container scrolls */}
             <div
                 ref={stickyRef}
                 style={{
@@ -102,75 +105,87 @@ export default function Technical({ data, bg }: TechnicalProps) {
                     overflow: 'hidden',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center'
+                    justifyContent: 'center',
                 }}
             >
                 {/* Dynamic Background Image */}
                 {bg?.imageUrl && (
                     <div style={{
-                        position: 'absolute',
-                        inset: 0,
+                        position: 'absolute', inset: 0,
                         backgroundImage: `url("${bg.imageUrl}")`,
                         backgroundSize: 'cover',
                         backgroundPosition: bg.imagePosition || 'center',
-                        opacity: 0.1, // Keep it very subtle for a technical feel
-                        zIndex: 0,
-                        pointerEvents: 'none'
+                        opacity: 0.08,
+                        zIndex: 0, pointerEvents: 'none',
                     }} />
                 )}
 
-                {/* Dark Overlay based on admin setting */}
+                {/* Overlay */}
                 <div style={{
-                    position: 'absolute',
-                    inset: 0,
-                    background: `rgba(0,0,0,${bg?.overlayOpacity || 0.95})`,
-                    zIndex: 0,
-                    pointerEvents: 'none'
+                    position: 'absolute', inset: 0,
+                    background: `rgba(0,0,0,${bg?.overlayOpacity ?? 0.95})`,
+                    zIndex: 0, pointerEvents: 'none',
                 }} />
-                {/* Horizontal strip — translated by GSAP (no DOM relocation) */}
+
+                {/* Horizontal strip — GSAP translates this */}
                 <div
                     ref={sectionRef}
                     style={{
                         height: '100vh',
-                        width: 'fit-content',
+                        width: 'max-content',
                         display: 'flex',
                         flexDirection: 'row',
                         alignItems: 'center',
+                        willChange: 'transform',
+                        position: 'relative',
+                        zIndex: 1,
                     }}
                 >
-                    {/* Intro Slide */}
-                    <div style={{ width: '100vw', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 var(--gutter)' }}>
-                        <div className="section-content">
-                            <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
-                                <span style={{
-                                    color: 'var(--highlight)',
-                                    fontSize: 'clamp(0.65rem, 1vw, 0.75rem)',
-                                    letterSpacing: '0.6em',
-                                    textTransform: 'uppercase',
-                                    display: 'block',
-                                    marginBottom: '2rem',
-                                    opacity: 0.8
-                                }}>
-                                    Expertise &amp; Tools
-                                </span>
-                                <h2 style={{
-                                    fontSize: 'clamp(3rem, 10vw, 7.5rem)',
-                                    fontWeight: 200,
-                                    textTransform: 'uppercase',
-                                    lineHeight: 0.9,
-                                    letterSpacing: '-0.04em'
-                                }}>
-                                    Technical<br />
-                                    <span style={{ fontWeight: 600, color: 'var(--accent-white)' }}>Mastery</span>
-                                </h2>
-                            </div>
+                    {/* ── Intro Slide ── */}
+                    <div style={{
+                        width: '100vw', height: '100%',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        padding: '0 clamp(2rem, 8vw, 8rem)',
+                        flexShrink: 0,
+                    }}>
+                        <div style={{ maxWidth: '800px', textAlign: 'center' }}>
+                            <span style={{
+                                color: 'var(--highlight)',
+                                fontSize: 'clamp(0.6rem, 1vw, 0.75rem)',
+                                letterSpacing: '0.6em',
+                                textTransform: 'uppercase',
+                                display: 'block',
+                                marginBottom: '2rem',
+                                opacity: 0.8,
+                            }}>
+                                Expertise &amp; Tools
+                            </span>
+                            <h2 style={{
+                                fontSize: 'clamp(3rem, 10vw, 7.5rem)',
+                                fontWeight: 200,
+                                textTransform: 'uppercase',
+                                lineHeight: 0.9,
+                                letterSpacing: '-0.04em',
+                                margin: 0,
+                            }}>
+                                Technical<br />
+                                <span style={{ fontWeight: 600, color: 'var(--accent-white)' }}>Mastery</span>
+                            </h2>
+                            <p style={{
+                                marginTop: '2rem',
+                                color: 'rgba(255,255,255,0.35)',
+                                fontSize: 'clamp(0.75rem, 1.2vw, 0.9rem)',
+                                letterSpacing: '0.05em',
+                            }}>
+                                Scroll to explore →
+                            </p>
                         </div>
                     </div>
 
-                    {/* Tech Slides */}
+                    {/* ── Tech Slides ── */}
                     {technologies.map((tech, index) => (
                         <div
-                            key={index}
+                            key={`${tech.name}-${index}`}
                             style={{
                                 width: '100vw',
                                 height: '100%',
@@ -179,51 +194,53 @@ export default function Technical({ data, bg }: TechnicalProps) {
                                 justifyContent: 'center',
                                 alignItems: 'center',
                                 position: 'relative',
-                                padding: '0 var(--gutter)'
+                                padding: '0 clamp(2rem, 8vw, 8rem)',
+                                flexShrink: 0,
                             }}
                         >
-                            <div className="tech-bg-number" style={{
+                            {/* Ghost number */}
+                            <div style={{
                                 position: 'absolute',
-                                top: '50%',
-                                left: '50%',
+                                top: '50%', left: '50%',
                                 transform: 'translate(-50%, -50%)',
                                 fontSize: 'clamp(10rem, 30vw, 22rem)',
                                 fontWeight: 900,
-                                opacity: 0.015,
+                                opacity: 0.018,
                                 zIndex: 0,
                                 pointerEvents: 'none',
-                                userSelect: 'none'
+                                userSelect: 'none',
+                                lineHeight: 1,
                             }}>
-                                {index + 1}
+                                {String(index + 1).padStart(2, '0')}
                             </div>
 
                             <div style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
                                 <span style={{
                                     color: 'var(--highlight)',
-                                    fontSize: 'clamp(0.7rem, 1vw, 0.8rem)',
+                                    fontSize: 'clamp(0.6rem, 1vw, 0.75rem)',
                                     marginBottom: '1.2rem',
                                     textTransform: 'uppercase',
-                                    letterSpacing: '0.3em',
-                                    display: 'block'
+                                    letterSpacing: '0.4em',
+                                    display: 'block',
                                 }}>
                                     {tech.type}
                                 </span>
                                 <h3 style={{
-                                    fontSize: 'clamp(2rem, 8vw, 5rem)',
-                                    fontWeight: 300,
+                                    fontSize: 'clamp(2.5rem, 9vw, 6rem)',
+                                    fontWeight: 200,
                                     margin: 0,
                                     textTransform: 'uppercase',
-                                    letterSpacing: '0.05em',
-                                    lineHeight: 1
+                                    letterSpacing: '0.04em',
+                                    lineHeight: 1,
                                 }}>
                                     {tech.name}
                                 </h3>
                                 <div style={{
-                                    width: 'min(60px, 15vw)',
-                                    height: '2px',
+                                    width: 'clamp(40px, 10vw, 60px)',
+                                    height: '1px',
                                     background: 'var(--highlight)',
-                                    margin: 'clamp(2rem, 5vw, 3.5rem) auto 0',
-                                    boxShadow: '0 0 15px rgba(229, 9, 20, 0.2)'
+                                    margin: 'clamp(1.5rem, 4vw, 3rem) auto 0',
+                                    boxShadow: '0 0 20px rgba(229,9,20,0.3)',
                                 }} />
                             </div>
                         </div>
