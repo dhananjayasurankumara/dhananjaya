@@ -252,7 +252,8 @@ function DashboardTab({ onNavigate }: { onNavigate: (tab: string) => void }) {
             fetch('/api/admin/content').then(r => r.ok ? r.json() : {}),
             fetch('/api/admin/reviews').then(r => r.ok ? r.json() : []),
             fetch('/api/admin/messages').then(r => r.ok ? r.json() : []),
-        ]).then(([prods, usrs, content, revs, msgs]) => {
+        ]).then(([prods, usrs, contentRaw, revs, msgs]) => {
+            const content = contentRaw as any;
             setStats({
                 products: (prods || []).length,
                 users: (usrs || []).length,
