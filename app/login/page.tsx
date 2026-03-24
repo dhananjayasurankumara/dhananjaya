@@ -12,7 +12,7 @@ export default function LoginPage() {
     const router = useRouter();
 
     // Login form
-    const [loginEmail, setLoginEmail] = useState('');
+    const [loginId, setLoginId] = useState('');
     const [loginPassword, setLoginPassword] = useState('');
 
     // Signup form
@@ -33,7 +33,7 @@ export default function LoginPage() {
         const res = await fetch('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: loginEmail, password: loginPassword }),
+            body: JSON.stringify({ email: loginId, password: loginPassword }),
         });
         const data = await res.json();
         setLoading(false);
@@ -161,7 +161,7 @@ export default function LoginPage() {
                             onSubmit={handleLogin}
                             style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}
                         >
-                            <AuthInput label="Email" type="email" value={loginEmail} onChange={setLoginEmail} placeholder="you@email.com" />
+                            <AuthInput label="Email or Username" type="text" value={loginId} onChange={setLoginId} placeholder="you@email.com or OHansani" />
                             <AuthInput label="Password" type="password" value={loginPassword} onChange={setLoginPassword} placeholder="••••••••" />
                             <AuthButton loading={loading}>Login</AuthButton>
                         </motion.form>
