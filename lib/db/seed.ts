@@ -1,8 +1,10 @@
 import { db } from './index';
 import {
     presenceLinks, technicalSkills, projects,
-    heroContent, aboutContent, philosophyContent, siteSettings
+    heroContent, aboutContent, philosophyContent, siteSettings,
+    portfolioUsers
 } from './schema';
+import bcrypt from 'bcryptjs';
 
 export async function ensureDefaults() {
     try {
@@ -123,6 +125,18 @@ export async function ensureDefaults() {
                 email: 'dhananjayasurankumara@gmail.com',
                 whatsapp: '94702096510',
                 themeColor: '#ff3333'
+            });
+        }
+
+        // 8. Default Admin User
+        const existingUsers = await db.select().from(portfolioUsers);
+        if (existingUsers.length === 0) {
+            const hashedPassword = await bcrypt.hash('admin', 10);
+            await db.insert(portfolioUsers).values({
+                name: 'admin',
+                email: 'admin@portfolio.local',
+                passwordHash: hashedPassword,
+                role: 'admin',
             });
         }
     } catch (error) {

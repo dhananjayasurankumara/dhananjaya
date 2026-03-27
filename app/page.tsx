@@ -14,6 +14,7 @@ import {
     philosophyContent, technicalSkills, presenceLinks, supportItems,
     backgroundImages
 } from "@/lib/db/schema";
+import { ensureDefaults } from "@/lib/db/seed";
 
 // Convert nulls from Drizzle to undefined so optional props match
 function nn<T extends object>(obj: T | undefined): { [K in keyof T]: Exclude<T[K], null> } | undefined {
@@ -27,6 +28,7 @@ export default async function Home() {
     let heroData, aboutData, projectsData, settingsData, philosophyData, techData, presenceData, supportData, bgImages: any[] = [];
 
     try {
+        await ensureDefaults();
         const results = await Promise.all([
             db.select().from(heroContent).limit(1).then(r => r[0]),
             db.select().from(aboutContent).limit(1).then(r => r[0]),

@@ -13,6 +13,9 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Identification and password are required' }, { status: 400 });
         }
 
+        // Automate seeding if empty (including admin user)
+        await (await import('@/lib/db/seed')).ensureDefaults();
+
         // Find user by email OR name (case-insensitive)
         const identification = username.trim();
         const [user] = await db.select().from(portfolioUsers)
